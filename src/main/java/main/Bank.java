@@ -75,7 +75,7 @@ public class Bank {
 	private void login() {
 		String username = BankUI.promptUsername();
 		String password = BankUI.promptPassword();
-
+			// Comment
 		currentUser = new User(username, password);
 		System.out.println(currentUser.toString());
 	}
