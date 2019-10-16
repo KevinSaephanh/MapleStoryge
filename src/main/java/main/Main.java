@@ -1,12 +1,12 @@
 package main;
 
 /*
- * @author: Kevin Saephanh
+ * @author Kevin Saephanh
  * */
 
 public class Main {
 	public static void main(String[] args) {
-		Bank bank = new Bank();
+		Bank bank = Bank.getInstance();
 		bank.start();
 	}
 }

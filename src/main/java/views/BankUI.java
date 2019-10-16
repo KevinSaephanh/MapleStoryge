@@ -17,10 +17,6 @@ public class BankUI {
 		System.out.println("1) Signup\n" + 
 							"2) Login\n" + 
 							"3) Exit");
-		while (!scanner.hasNextInt()) {
-			System.out.println("Enter a valid number!");
-			scanner.nextLine();
-		}
 		int reply = scanner.nextInt();
 		return reply;
 	}
@@ -31,10 +27,6 @@ public class BankUI {
 							"2) Create a savings account\n" +
 							"3) View an account\n"+ 
 							"4) Log out");
-		while (!scanner.hasNextInt()) {
-			System.out.println("Enter a valid number!");
-			scanner.nextLine();
-		}
 		int reply = scanner.nextInt();
 		return reply;
 	}
@@ -47,10 +39,6 @@ public class BankUI {
 							"4) Transfer money to another account\n" + 
 							"5) Close this account\n" +
 							"6) Back to user menu");
-		while (!scanner.hasNextInt()) {
-			System.out.println("Enter a valid number!");
-			scanner.nextLine();
-		}
 		int reply = scanner.nextInt();
 		return reply;
 	}
@@ -66,23 +54,21 @@ public class BankUI {
 		String password = scanner.next();
 		return password;
 	}
+	
+	public static String promptTitle() {
+		System.out.print("Enter a title for this account: ");
+		String title = scanner.next();
+		return title;
+	}
 
 	public static double promptDeposit() {
 		System.out.print("Enter an amount to deposit: ");
-		while (!scanner.hasNextDouble()) {
-			System.out.println("Enter a valid amount!");
-			scanner.nextLine();
-		}
 		double deposit = scanner.nextDouble();
 		return deposit;
 	}
 
 	public static double promptWithdraw() {
 		System.out.print("Enter an amount to withdraw: ");
-		while (!scanner.hasNextDouble()) {
-			System.out.println("Enter a valid amount!");
-			scanner.nextLine();
-		}
 		double withdraw = scanner.nextDouble();
 		return withdraw;
 	}

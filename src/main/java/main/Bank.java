@@ -6,14 +6,21 @@ import models.User;
 import utils.InputValidation;
 import views.BankUI;
 
-// Users have the option to create either a checking or savings account
-// Both do the same thing, but for name sake differentiate them
-// Give each account a title to make it easier to navigate in the future
-
 public class Bank {
 	private User currentUser;
 	private Account currentAccount;
+	private static Bank bank_instance = null;
 
+	private Bank() {}
+	
+	public static Bank getInstance() {
+		if (bank_instance == null) {
+			bank_instance = new Bank();
+		}
+		
+		return bank_instance;
+	}
+	
 	// Make custom exceptions for invalid inputs
 	public void start() {
 		boolean running = true;
@@ -65,9 +72,26 @@ public class Bank {
 	}
 
 	private void createUser() {
-		String username = BankUI.promptUsername();
-		String password = BankUI.promptPassword();
+		String username = "";
+		String password = "";
+		
+		// Loop until username input is valid
+		while (true) {
+			username = BankUI.promptUsername();
+			if (InputValidation.isValidUsername(username)) {
+				break;
+			}
+		}
+		
+		// Loop until password input is valid
+		while (true) {
+			password = BankUI.promptPassword();
+			if (InputValidation.isValidPassword(password)) {
+				break;
+			}
+		}
 
+		// Create new user in database
 		User newUser = new User(username, password);
 		System.out.println(newUser.toString());
 	}
@@ -75,13 +99,22 @@ public class Bank {
 	private void login() {
 		String username = BankUI.promptUsername();
 		String password = BankUI.promptPassword();
-			// Comment
+
 		currentUser = new User(username, password);
 		System.out.println(currentUser.toString());
+		userActions();
 	}
 
 	private void createAccount(AccountType at) {
 		Account newAcc = new Account(at);
+		
+		// Loop until title input is valid
+		while (true) {
+			String title = BankUI.promptTitle();
+			if (InputValidation.isValidTitle(title)) {
+				break;
+			}
+		}
 	}
 
 	private void viewAccount() {
@@ -91,8 +124,8 @@ public class Bank {
 	private void deposit() {
 		double amount = BankUI.promptDeposit();
 		if (InputValidation.isAmountGreaterThanZero(amount) &&
-			InputValidation.isAmountWithinBalance(amount, currentAccount.getBalance())) {
-			
+				InputValidation.isAmountWithinBalance(amount, currentAccount.getBalance())) {
+				
 		}
 	}
 	
