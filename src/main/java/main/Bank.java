@@ -1,5 +1,7 @@
 package main;
 
+import java.math.BigDecimal;
+
 import models.Account;
 import models.AccountType;
 import models.User;
@@ -11,20 +13,21 @@ public class Bank {
 	private Account currentAccount;
 	private static Bank bank_instance = null;
 
-	private Bank() {}
-	
+	private Bank() {
+	}
+
 	public static Bank getInstance() {
 		if (bank_instance == null) {
 			bank_instance = new Bank();
 		}
-		
+
 		return bank_instance;
 	}
-	
+
 	// Make custom exceptions for invalid inputs
 	public void start() {
 		boolean running = true;
-
+ 
 		while (running) {
 			int reply = BankUI.mainMenu();
 
@@ -40,7 +43,7 @@ public class Bank {
 				running = false;
 				break;
 			default:
-				System.out.println("Please select a valid number!");
+				System.out.printf("\n%d is not a valid number! Try again!\n\n", reply);
 			}
 		}
 	}
@@ -66,7 +69,7 @@ public class Bank {
 				running = false;
 				break;
 			default:
-				System.out.println("Please select a valid number!");
+				System.out.printf("\n%d is not a valid number! Try again!\n\n", reply);
 			}
 		}
 	}
@@ -74,7 +77,7 @@ public class Bank {
 	private void createUser() {
 		String username = "";
 		String password = "";
-		
+
 		// Loop until username input is valid
 		while (true) {
 			username = BankUI.promptUsername();
@@ -82,7 +85,7 @@ public class Bank {
 				break;
 			}
 		}
-		
+
 		// Loop until password input is valid
 		while (true) {
 			password = BankUI.promptPassword();
@@ -100,18 +103,19 @@ public class Bank {
 		String username = BankUI.promptUsername();
 		String password = BankUI.promptPassword();
 
+		// Check database for matching user input
 		currentUser = new User(username, password);
 		System.out.println(currentUser.toString());
 		userActions();
 	}
 
 	private void createAccount(AccountType at) {
-		Account newAcc = new Account(at);
-		
 		// Loop until title input is valid
 		while (true) {
 			String title = BankUI.promptTitle();
 			if (InputValidation.isValidTitle(title)) {
+				Account newAcc = new Account(title, at);
+				System.out.println(newAcc.toString());
 				break;
 			}
 		}
@@ -119,20 +123,27 @@ public class Bank {
 
 	private void viewAccount() {
 		// Give list of accounts that contain user
+		// Pass in list of accounts to UI
 	}
 
 	private void deposit() {
-		double amount = BankUI.promptDeposit();
-		if (InputValidation.isAmountGreaterThanZero(amount) &&
-				InputValidation.isAmountWithinBalance(amount, currentAccount.getBalance())) {
-				
+		while (true) {
+			BigDecimal amount = BankUI.promptDeposit();
+			if (InputValidation.isAmountGreaterThanZero(amount)
+					&& InputValidation.isAmountWithinBalance(amount, currentAccount.getBalance())) {
+				// Change balance here
+				break;
+			}
 		}
 	}
-	
+
 	private void withdraw() {
-		double amount = BankUI.promptWithdraw();
-		if(InputValidation.isAmountGreaterThanZero(amount)) {
-			
+		while (true) {
+			BigDecimal amount = BankUI.promptWithdraw();
+			if (InputValidation.isAmountGreaterThanZero(amount)) {
+				// Change balance here
+				break;
+			}
 		}
 	}
 }

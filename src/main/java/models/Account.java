@@ -1,19 +1,22 @@
 package models;
 
+import java.math.BigDecimal;
+
 public class Account {
-	private double balance;
+	private BigDecimal balance;
 	private String title;
 	private AccountType accountType;
-	
-	public Account(AccountType accountType) {
-		balance = 0;
+
+	public Account(String title, AccountType accountType) {
+		balance = new BigDecimal(0.00);
+		this.title = title;
 		this.accountType = accountType;
 	}
-	
-	public Account(double balance) {
+
+	public Account(BigDecimal balance) {
 		this.balance = balance;
 	}
-	
+
 	public AccountType getaccountType() {
 		return accountType;
 	}
@@ -21,7 +24,7 @@ public class Account {
 	public void setaccountType(AccountType accountType) {
 		this.accountType = accountType;
 	}
-	
+
 	public String getTitle() {
 		return title;
 	}
@@ -30,11 +33,12 @@ public class Account {
 		this.title = title;
 	}
 
-	public double getBalance() {
+	public BigDecimal getBalance() {
 		return balance;
 	}
 
-	public void setBalance(double balance) {
+	public void setBalance(BigDecimal balance) {
+		balance.setScale(2);
 		this.balance = balance;
 	}
 
@@ -43,9 +47,7 @@ public class Account {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((accountType == null) ? 0 : accountType.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(balance);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((balance == null) ? 0 : balance.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		return result;
 	}
@@ -61,7 +63,10 @@ public class Account {
 		Account other = (Account) obj;
 		if (accountType != other.accountType)
 			return false;
-		if (Double.doubleToLongBits(balance) != Double.doubleToLongBits(other.balance))
+		if (balance == null) {
+			if (other.balance != null)
+				return false;
+		} else if (!balance.equals(other.balance))
 			return false;
 		if (title == null) {
 			if (other.title != null)
@@ -69,5 +74,12 @@ public class Account {
 		} else if (!title.equals(other.title))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "\nBalance: " + balance + 
+				"\nTitle: " + title + 
+				"\nAccount Type: " + accountType + "\n";
 	}
 }

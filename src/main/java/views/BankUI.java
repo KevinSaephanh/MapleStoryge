@@ -1,5 +1,6 @@
 package views;
 
+import java.math.BigDecimal;
 import java.util.Scanner;
 
 public class BankUI {
@@ -7,18 +8,23 @@ public class BankUI {
 
 	// MapleStory Bank - mesos currency
 	// User accounts have a bank account with single/multiple checking/savings
-	// Checking/savings are the same so no need to make into separate classes
 	// Accounts will have primary keys
 	// Joint accounts can be made between users
-	// A joint account is just a single account
 	public static int mainMenu() {
 		System.out.println("Welcome to MapleStoryge!");
+		System.out.println("------------------------\n");
 		System.out.println("Choose from one of the options below (1-3): ");
 		System.out.println("1) Signup\n" + 
 							"2) Login\n" + 
 							"3) Exit");
-		int reply = scanner.nextInt();
-		return reply;
+		do {
+			if (scanner.hasNextInt()) {
+				int reply = scanner.nextInt();
+				return reply;
+			} else {
+				System.out.printf("%s is not a number!\n", scanner.next());
+			}
+		} while (true);
 	}
 
 	public static int loggedInMenu() {
@@ -27,8 +33,14 @@ public class BankUI {
 							"2) Create a savings account\n" +
 							"3) View an account\n"+ 
 							"4) Log out");
-		int reply = scanner.nextInt();
-		return reply;
+		do {
+			if (scanner.hasNextInt()) {
+				int reply = scanner.nextInt();
+				return reply;
+			} else {
+				System.out.printf("%s is not a number!\n", scanner.next());
+			}
+		} while (true);
 	}
 
 	public static int accountMenu() {
@@ -61,15 +73,15 @@ public class BankUI {
 		return title;
 	}
 
-	public static double promptDeposit() {
+	public static BigDecimal promptDeposit() {
 		System.out.print("Enter an amount to deposit: ");
-		double deposit = scanner.nextDouble();
+		BigDecimal deposit = scanner.nextBigDecimal();
 		return deposit;
 	}
 
-	public static double promptWithdraw() {
+	public static BigDecimal promptWithdraw() {
 		System.out.print("Enter an amount to withdraw: ");
-		double withdraw = scanner.nextDouble();
+		BigDecimal withdraw = scanner.nextBigDecimal();
 		return withdraw;
 	}
 }

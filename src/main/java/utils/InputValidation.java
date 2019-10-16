@@ -1,5 +1,6 @@
 package utils;
 
+import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,15 +54,15 @@ public class InputValidation {
 		return match;
 	}
 	
-	public static boolean isAmountGreaterThanZero(double amount) {
-		if (amount <= 0) {
+	public static boolean isAmountGreaterThanZero(BigDecimal amount) {
+		if (amount.compareTo(new BigDecimal(0.00)) <= 0) {
 			return true;
 		}
 		return false;
 	}
 	
-	public static boolean isAmountWithinBalance(double amount, double balance) {
-		if (amount <= balance) {
+	public static boolean isAmountWithinBalance(BigDecimal amount, BigDecimal balance) {
+		if (amount.compareTo(balance) <= 0) {
 			return true;
 		}
 		return false;
