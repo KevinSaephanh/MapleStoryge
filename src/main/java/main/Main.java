@@ -14,7 +14,7 @@ package main;
  * 		type
  * 		title
  * 		balance
- * BankUI
+ * Bank UI
  * 		main menu
  * 		logged in menu
  * 		prompts
@@ -30,6 +30,7 @@ package main;
  * 		title
  * 		non-negative deposits/withdraws
  * 		deposit less than or equal to balance
+ * Scanner util
  * */
 
 public class Main {

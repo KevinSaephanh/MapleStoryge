@@ -3,6 +3,8 @@ package views;
 import java.math.BigDecimal;
 import java.util.Scanner;
 
+import utils.ScannerUtil;
+
 public class BankUI {
 	private static Scanner scanner = new Scanner(System.in);
 
@@ -17,14 +19,8 @@ public class BankUI {
 		System.out.println("1) Signup\n" + 
 							"2) Login\n" + 
 							"3) Exit");
-		do {
-			if (scanner.hasNextInt()) {
-				int reply = scanner.nextInt();
-				return reply;
-			} else {
-				System.out.printf("%s is not a number!\n", scanner.next());
-			}
-		} while (true);
+		int reply = ScannerUtil.getInput(3);
+		return reply;
 	}
 
 	public static int loggedInMenu() {
@@ -33,14 +29,8 @@ public class BankUI {
 							"2) Create a savings account\n" +
 							"3) View an account\n"+ 
 							"4) Log out");
-		do {
-			if (scanner.hasNextInt()) {
-				int reply = scanner.nextInt();
-				return reply;
-			} else {
-				System.out.printf("%s is not a number!\n", scanner.next());
-			}
-		} while (true);
+		int reply = ScannerUtil.getInput(4);
+		return reply;
 	}
 
 	public static int accountMenu() {
@@ -51,7 +41,7 @@ public class BankUI {
 							"4) Transfer money to another account\n" + 
 							"5) Close this account\n" +
 							"6) Back to user menu");
-		int reply = scanner.nextInt();
+		int reply = ScannerUtil.getInput(6);
 		return reply;
 	}
 

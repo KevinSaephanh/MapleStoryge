@@ -26,51 +26,38 @@ public class Bank {
 
 	// Make custom exceptions for invalid inputs
 	public void start() {
-		boolean running = true;
- 
-		while (running) {
-			int reply = BankUI.mainMenu();
+		int reply = BankUI.mainMenu();
 
-			switch (reply) {
-			case 1:
-				createUser();
-				break;
-			case 2:
-				login();
-				break;
-			case 3:
-				System.out.println("Exiting app");
-				running = false;
-				break;
-			default:
-				System.out.printf("\n%d is not a valid number! Try again!\n\n", reply);
-			}
+		switch (reply) {
+		case 1:
+			createUser();
+			break;
+		case 2:
+			login();
+			break;
+		case 3:
+			System.out.println("Exiting app");
+			break;
+
 		}
 	}
 
 	private void userActions() {
-		boolean running = true;
+		int reply = BankUI.loggedInMenu();
 
-		while (running) {
-			int reply = BankUI.loggedInMenu();
-
-			switch (reply) {
-			case 1:
-				createAccount(AccountType.CHECKING);
-				break;
-			case 2:
-				createAccount(AccountType.SAVINGS);
-				break;
-			case 3:
-				viewAccount();
-				break;
-			case 4:
-				System.out.println("Logging out...");
-				running = false;
-				break;
-			default:
-				System.out.printf("\n%d is not a valid number! Try again!\n\n", reply);
-			}
+		switch (reply) {
+		case 1:
+			createAccount(AccountType.CHECKING);
+			break;
+		case 2:
+			createAccount(AccountType.SAVINGS);
+			break;
+		case 3:
+			viewAccount();
+			break;
+		case 4:
+			System.out.println("Logging out...");
+			break;
 		}
 	}
 
