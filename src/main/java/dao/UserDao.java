@@ -7,24 +7,33 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import exceptions.UserDoesNotExistException;
 import models.User;
 import utils.ConnectionUtil;
 
 public class UserDao {
 	// UserDoesNotExistException
-	public boolean getUser(String username, String password) {
+	public boolean getUser(String username, String password) throws UserDoesNotExistException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
-			String sql = "SELECT * FROM users WHERE user_name = '?' AND pass_word = '?'";
+			String sql = "SELECT * FROM users WHERE user_name = ? AND pass_word = ?";
 			PreparedStatement statement = connection.prepareStatement(sql);
 			statement.setString(1, username);
 			statement.setString(2, password);
 			ResultSet rs = statement.executeQuery();
-			
-			if (rs.isBeforeFirst()) {
-				System.out.println("MATCH");
-				return true;
+
+			// Check if result set returned query
+			if (rs.next()) {
+				String un = rs.getString("user_name");
+				String pw = rs.getString("pass_word");
+				
+				// Compare result set username and password with parameters
+				if (un.equals(username) && pw.equals(password)) {
+					return true;
+				}
 			}
-			return false;
+			
+			// If result set is empty, throw exception
+			throw new UserDoesNotExistException("Incorrect username/password!");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -75,9 +84,10 @@ public class UserDao {
 		}
 	}
 	
+	// UserAlreadyExistsException
 	public boolean createUser(User user) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
-			if (doesUserExist(user.getUsername())) {
+			if (isUsernameInUse(user.getUsername())) {
 				String sql = "INSERT INTO users (user_name, pass_word) VALUES(?, ?)";
 				PreparedStatement statement = connection.prepareStatement(sql);
 				
@@ -87,13 +97,6 @@ public class UserDao {
 				return true;
 			}
 			 return false;
-//			String sql = "INSERT INTO users (user_name, pass_word) VALUES(?, ?)";
-//			PreparedStatement statement = connection.prepareStatement(sql);
-//			
-//			statement.setString(1, user.getUsername());
-//			statement.setString(2, user.getPassword());
-//			statement.executeUpdate();
-//			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
@@ -118,7 +121,7 @@ public class UserDao {
 	
 	public boolean deleteUser(User user) {
         try (Connection connection = ConnectionUtil.getConnection()) {
-            String sql = "DELETE FROM users WHERE LOWER(username) = ?";
+            String sql = "DELETE FROM users WHERE LOWER(user_name) = ?";
 			PreparedStatement statement = connection.prepareStatement(sql);
 			statement.setString(1, user.getUsername());
 			statement.executeUpdate();
@@ -137,15 +140,15 @@ public class UserDao {
 		return user;
 	}
 	
-	// UserAlreadyExistsException
-	private boolean doesUserExist(String username) {
+	private boolean isUsernameInUse(String username) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
-            String sql = "SELECT * FROM users WHERE user_name = '?'";
+            String sql = "SELECT * FROM users WHERE user_name = ?";
 			PreparedStatement statement = connection.prepareStatement(sql);
-			ResultSet resultSet = statement.executeQuery();
+			statement.setString(1, username);
+			ResultSet rs = statement.executeQuery();
 
-			// Check if result set returned empty, hence the username is unique
-			if (!resultSet.isBeforeFirst()) {
+			// If result set is not empty, username is in use 
+			if (rs.next()) {
 				return true;
 			}
 		} catch (SQLException e) {

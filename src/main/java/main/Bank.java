@@ -3,6 +3,7 @@ package main;
 import java.math.BigDecimal;
 
 import dao.UserDao;
+import exceptions.UserDoesNotExistException;
 import models.Account;
 import models.AccountType;
 import models.User;
@@ -108,10 +109,13 @@ public class Bank {
 		// Check database for matching user input
 		currentUser = new User(username, password);
 		UserDao ud = new UserDao();
-		if (ud.getUser(username, password)) {
-
+		try {
+			if (ud.getUser(username, password)) {
+				userActions();
+			}	
+		} catch (UserDoesNotExistException e) {
+			e.printStackTrace();
 		}
-		userActions();
 	}
 
 	private void createAccount(AccountType at) {

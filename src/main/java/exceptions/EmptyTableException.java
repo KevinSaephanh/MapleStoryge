@@ -1,7 +1,7 @@
 package exceptions;
 
-public class UserAlreadyExistsException extends Exception {
-	public UserAlreadyExistsException(String e) {
+public class EmptyTableException extends Exception {
+	public EmptyTableException(String e) {
 		super(e);
 	}
 	
