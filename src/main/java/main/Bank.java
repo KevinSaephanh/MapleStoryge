@@ -2,6 +2,7 @@ package main;
 
 import java.math.BigDecimal;
 
+import dao.UserDao;
 import models.Account;
 import models.AccountType;
 import models.User;
@@ -26,38 +27,48 @@ public class Bank {
 
 	// Make custom exceptions for invalid inputs
 	public void start() {
-		int reply = BankUI.mainMenu();
+		while (true) {
 
-		switch (reply) {
-		case 1:
-			createUser();
-			break;
-		case 2:
-			login();
-			break;
-		case 3:
-			System.out.println("Exiting app");
-			break;
+			int reply = BankUI.mainMenu();
+
+			switch (reply) {
+			case 1:
+				createUser();
+				break;
+			case 2:
+				login();
+				break;
+			case 3:
+				System.out.println("Exiting app");
+				return;
+			}
 
 		}
 	}
 
 	private void userActions() {
-		int reply = BankUI.loggedInMenu();
+		while (true) {
+			int reply = BankUI.loggedInMenu();
 
-		switch (reply) {
-		case 1:
-			createAccount(AccountType.CHECKING);
-			break;
-		case 2:
-			createAccount(AccountType.SAVINGS);
-			break;
-		case 3:
-			viewAccount();
-			break;
-		case 4:
-			System.out.println("Logging out...");
-			break;
+			switch (reply) {
+			case 1:
+				createAccount(AccountType.CHECKING);
+				break;
+			case 2:
+				createAccount(AccountType.SAVINGS);
+				break;
+			case 3:
+				viewAccount();
+				break;
+			case 4:
+				updateUser();
+				break;
+			case 5:
+				deleteUser(currentUser);
+				return;
+			case 6:
+				return;
+			}
 		}
 	}
 
@@ -83,7 +94,11 @@ public class Bank {
 
 		// Create new user in database
 		User newUser = new User(username, password);
-		System.out.println(newUser.toString());
+		UserDao ud = new UserDao();
+		boolean created = ud.createUser(newUser);
+		if (created) {
+			System.out.println("New user has been created");
+		}
 	}
 
 	private void login() {
@@ -92,7 +107,10 @@ public class Bank {
 
 		// Check database for matching user input
 		currentUser = new User(username, password);
-		System.out.println(currentUser.toString());
+		UserDao ud = new UserDao();
+		if (ud.getUser(username, password)) {
+
+		}
 		userActions();
 	}
 
@@ -102,7 +120,6 @@ public class Bank {
 			String title = BankUI.promptTitle();
 			if (InputValidation.isValidTitle(title)) {
 				Account newAcc = new Account(title, at);
-				System.out.println(newAcc.toString());
 				break;
 			}
 		}
@@ -111,6 +128,14 @@ public class Bank {
 	private void viewAccount() {
 		// Give list of accounts that contain user
 		// Pass in list of accounts to UI
+	}
+	
+	private void updateUser() {
+		
+	}
+	
+	private void deleteUser(User u) {
+
 	}
 
 	private void deposit() {

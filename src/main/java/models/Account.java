@@ -3,6 +3,7 @@ package models;
 import java.math.BigDecimal;
 
 public class Account {
+	private int id;
 	private BigDecimal balance;
 	private String title;
 	private AccountType accountType;
@@ -17,11 +18,19 @@ public class Account {
 		this.balance = balance;
 	}
 
-	public AccountType getaccountType() {
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public AccountType getAccountType() {
 		return accountType;
 	}
 
-	public void setaccountType(AccountType accountType) {
+	public void setAccountType(AccountType accountType) {
 		this.accountType = accountType;
 	}
 

@@ -16,7 +16,7 @@ public class ScannerUtil {
 				}
 			}
 			
-			// Error message
+			// Error message, loop continues
 			System.out.println("Please enter a valid number!");
 			scanner.nextLine();
 		}

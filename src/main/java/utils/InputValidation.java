@@ -8,11 +8,10 @@ public class InputValidation {
 	private static final String USERNAME_PATTERN = "[a-zA-Z0-9\\\\._\\\\-]{2,25}";
 	private static final String PASSWORD_PATTERN = "^(?=.*[A-Z])(?=.*\\d).{7,50}$";
 	private static final String TITLE_PATTERN = "[a-zA-Z0-9\\\\._\\\\-]{3,30}";
+	private static final String DECIMAL_PATTERN = "^\\d+\\.\\d{0,2}$";
 	
 	public static boolean isValidUsername(String username) {
-		Pattern pattern = Pattern.compile(USERNAME_PATTERN);
-		Matcher matcher = pattern.matcher(username);
-		boolean match = matcher.matches();
+		boolean match = getMatch(USERNAME_PATTERN, username);
 		
 		if (!match) {
 			System.out.println("Username must follow this format:\n" +
@@ -25,9 +24,7 @@ public class InputValidation {
 	}
 	
 	public static boolean isValidPassword(String password) {
-		Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
-		Matcher matcher = pattern.matcher(password);
-		boolean match = matcher.matches();
+		boolean match = getMatch(PASSWORD_PATTERN, password);
 		
 		if (!match) {
 			System.out.println("Password must follow this format:\n" +
@@ -40,15 +37,23 @@ public class InputValidation {
 	}
 	
 	public static boolean isValidTitle(String title) {
-		Pattern pattern = Pattern.compile(TITLE_PATTERN);
-		Matcher matcher = pattern.matcher(title);
-		boolean match = matcher.matches();
+		boolean match = getMatch(TITLE_PATTERN, title);
 		
 		if (!match) {
-			System.out.println("Title must follow this format:\n" +
+			System.out.println("Your storage name must follow this format:\n" +
 								"- Must be at least 3 characters long\n" +
 								"- Length cannot exceed 30 characters\n" +
 								"- Cannot contain special characters");
+		}
+		
+		return match;
+	}
+	
+	public static boolean isPreciseDecimalScale(BigDecimal amount) {
+		boolean match = getMatch(DECIMAL_PATTERN, String.valueOf(amount));
+		
+		if (!match) {
+			System.out.println("The decimal scale maximum is 2 decimal places!");
 		}
 		
 		return match;
@@ -66,5 +71,18 @@ public class InputValidation {
 			return true;
 		}
 		return false;
+	}
+	
+	/*
+	 * Takes in a specific pattern and input
+	 * Then a comparison is made between the input and patter
+	 * Returns true if the input matches the pattern, else returns false
+	 * */
+	private static boolean getMatch(String inputPattern, String input) {
+		Pattern pattern = Pattern.compile(inputPattern);
+		Matcher matcher = pattern.matcher(input);
+		boolean match = matcher.matches();
+		
+		return match;
 	}
 }
