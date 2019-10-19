@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 public class InputValidation {
 	private static final String USERNAME_PATTERN = "[a-zA-Z0-9\\\\._\\\\-]{2,25}";
 	private static final String PASSWORD_PATTERN = "^(?=.*[A-Z])(?=.*\\d).{7,50}$";
-	private static final String TITLE_PATTERN = "[a-zA-Z0-9\\\\._\\\\-]{3,30}";
+	private static final String TITLE_PATTERN = "^{3,30}$";
 	private static final String DECIMAL_PATTERN = "^\\d+\\.\\d{0,2}$";
 	
 	public static boolean isValidUsername(String username) {
@@ -37,16 +37,16 @@ public class InputValidation {
 	}
 	
 	public static boolean isValidTitle(String title) {
-		boolean match = getMatch(TITLE_PATTERN, title);
+		// boolean match = getMatch(TITLE_PATTERN, title);
 		
-		if (!match) {
+		if (title.length() < 3 || title.length() > 30) {
 			System.out.println("Your storage name must follow this format:\n" +
 								"- Must be at least 3 characters long\n" +
-								"- Length cannot exceed 30 characters\n" +
-								"- Cannot contain special characters");
+								"- Length cannot exceed 30 characters");
+			return false;
 		}
 		
-		return match;
+		return true;
 	}
 	
 	public static boolean isPreciseDecimalScale(BigDecimal amount) {

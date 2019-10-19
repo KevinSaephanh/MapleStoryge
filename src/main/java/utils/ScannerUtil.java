@@ -1,5 +1,6 @@
 package utils;
 
+import java.math.BigDecimal;
 import java.util.Scanner;
 
 public class ScannerUtil {
@@ -20,5 +21,23 @@ public class ScannerUtil {
 			System.out.println("Please enter a valid number!");
 			scanner.nextLine();
 		}
+	}
+	
+	public static String getStringInput() {
+		String input = "";
+		while(input.isEmpty()) {
+			input = scanner.nextLine();
+		}
+		return input;
+	}
+	
+	public static BigDecimal getBigDecimalInput() {
+		BigDecimal input = null;
+		
+		if (scanner.hasNextBigDecimal()) {
+			input = scanner.nextBigDecimal();
+		}
+		
+		return input;
 	}
 }

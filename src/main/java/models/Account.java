@@ -14,6 +14,14 @@ public class Account {
 		this.accountType = accountType;
 	}
 
+	public Account(int id, BigDecimal balance, String title, AccountType accountType) {
+		super();
+		this.id = id;
+		this.balance = balance;
+		this.title = title;
+		this.accountType = accountType;
+	}
+
 	public Account(BigDecimal balance) {
 		this.balance = balance;
 	}
@@ -87,8 +95,6 @@ public class Account {
 
 	@Override
 	public String toString() {
-		return "\nBalance: " + balance + 
-				"\nTitle: " + title + 
-				"\nAccount Type: " + accountType + "\n";
+		return "\nMesos: " + balance + "\nTitle: " + title + "\nAccount Type: " + accountType.toString() + "\n";
 	}
 }

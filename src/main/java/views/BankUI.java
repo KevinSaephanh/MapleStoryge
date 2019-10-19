@@ -1,17 +1,9 @@
 package views;
 
 import java.math.BigDecimal;
-import java.util.Scanner;
-
 import utils.ScannerUtil;
 
 public class BankUI {
-	private static Scanner scanner = new Scanner(System.in);
-
-	// MapleStory Bank - mesos currency
-	// User accounts have a bank account with single/multiple checking/savings
-	// Accounts will have primary keys
-	// Joint accounts can be made between users
 	public static int mainMenu() {
 		System.out.println("Welcome to MapleStoryge UwU!");
 		System.out.println("----------------------------\n");
@@ -51,38 +43,39 @@ public class BankUI {
 		System.out.println("Choose from one of the options below (1-3): ");
 		System.out.println("1) Update your username\n" + 
 							"2) Update your password\n" +
-							"3) Back to user menu");
-		int reply = ScannerUtil.getInput(3);
+							"3) Update both your username and password\n" +
+							"4) Back to user menu");
+		int reply = ScannerUtil.getInput(4);
 		return reply;
 	}
 
 	public static String promptUsername() {
 		System.out.print("Enter a username: ");
-		String username = scanner.next();
+		String username = ScannerUtil.getStringInput();
 		return username;
 	}
 
 	public static String promptPassword() {
 		System.out.print("Enter a password: ");
-		String password = scanner.next();
+		String password = ScannerUtil.getStringInput();
 		return password;
 	}
 	
 	public static String promptTitle() {
 		System.out.print("Enter a name for this storage: ");
-		String title = scanner.next();
+		String title = ScannerUtil.getStringInput();
 		return title;
 	}
 
 	public static BigDecimal promptDeposit() {
 		System.out.print("Enter an amount to deposit: ");
-		BigDecimal deposit = scanner.nextBigDecimal();
+		BigDecimal deposit = ScannerUtil.getBigDecimalInput();
 		return deposit;
 	}
 
 	public static BigDecimal promptWithdraw() {
 		System.out.print("Enter an amount to withdraw: ");
-		BigDecimal withdraw = scanner.nextBigDecimal();
+		BigDecimal withdraw = ScannerUtil.getBigDecimalInput();
 		return withdraw;
 	}
 }

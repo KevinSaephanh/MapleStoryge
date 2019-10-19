@@ -1,8 +1,12 @@
 package main;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+import dao.AccountDao;
 import dao.UserDao;
+import exceptions.EmptyTableException;
+import exceptions.UserAlreadyExistsException;
 import exceptions.UserDoesNotExistException;
 import models.Account;
 import models.AccountType;
@@ -13,9 +17,13 @@ import views.BankUI;
 public class Bank {
 	private User currentUser;
 	private Account currentAccount;
+	private UserDao userDao;
+	private AccountDao accountDao;
 	private static Bank bank_instance = null;
 
 	private Bank() {
+		userDao = new UserDao();
+		accountDao = new AccountDao();
 	}
 
 	public static Bank getInstance() {
@@ -43,7 +51,6 @@ public class Bank {
 				System.out.println("Exiting app");
 				return;
 			}
-
 		}
 	}
 
@@ -72,6 +79,21 @@ public class Bank {
 			}
 		}
 	}
+	
+	private void login() {
+		String username = BankUI.promptUsername();
+		String password = BankUI.promptPassword();
+
+		// Check database for matching user input
+		currentUser = new User(username, password);
+		try {
+			currentUser = userDao.getUser(username, password);
+			System.out.println("\n\nYou are logged in");
+			userActions();
+		} catch (UserDoesNotExistException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private void createUser() {
 		String username = "";
@@ -96,26 +118,26 @@ public class Bank {
 		// Create new user in database
 		User newUser = new User(username, password);
 		UserDao ud = new UserDao();
-		boolean created = ud.createUser(newUser);
-		if (created) {
-			System.out.println("New user has been created");
+
+		try {
+			boolean created = ud.createUser(newUser);
+			if (created) {
+				System.out.println("\nNew user has been created\n");
+			}
+		} catch (UserAlreadyExistsException e) {
+			e.printStackTrace();
 		}
 	}
-
-	private void login() {
+	
+	private void updateUser() {
 		String username = BankUI.promptUsername();
 		String password = BankUI.promptPassword();
 
-		// Check database for matching user input
-		currentUser = new User(username, password);
-		UserDao ud = new UserDao();
-		try {
-			if (ud.getUser(username, password)) {
-				userActions();
-			}	
-		} catch (UserDoesNotExistException e) {
-			e.printStackTrace();
-		}
+		userDao.updateUser(currentUser, username, password);
+	}
+
+	private void deleteUser(User u) {
+
 	}
 
 	private void createAccount(AccountType at) {
@@ -124,22 +146,24 @@ public class Bank {
 			String title = BankUI.promptTitle();
 			if (InputValidation.isValidTitle(title)) {
 				Account newAcc = new Account(title, at);
-				break;
+				boolean created = accountDao.createAccount(newAcc);
+				if (created) {
+					System.out.println("\nNew maple storage has been created!\n");
+				}
+				return;
 			}
 		}
 	}
 
 	private void viewAccount() {
-		// Give list of accounts that contain user
-		// Pass in list of accounts to UI
-	}
-	
-	private void updateUser() {
-		
-	}
-	
-	private void deleteUser(User u) {
-
+		try {
+			List<Account> accs = accountDao.getAllAccounts();
+//			for(Account a : accs) {
+//				System.out.println(a.toString());
+//			}
+		} catch (EmptyTableException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void deposit() {
