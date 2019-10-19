@@ -14,9 +14,7 @@ public class MainMenu implements View {
 		System.out.println("Welcome to MapleStoryge!");
 		System.out.println("----------------------------\n");
 		System.out.println("Choose from one of the options below:");
-		System.out.println("1) Signup\n" + 
-							"2) Login\n" + 
-							"0) Exit");
+		System.out.println("1) Signup\n" + "2) Login\n" + "0) Exit");
 	}
 
 	@Override
@@ -45,7 +43,7 @@ public class MainMenu implements View {
 
 		// Loop until username input is valid
 		while (true) {
-			username = BankUI.promptUsername();
+			username = Prompt.promptUsername();
 			if (InputValidation.isValidUsername(username)) {
 				break;
 			}
@@ -53,7 +51,7 @@ public class MainMenu implements View {
 
 		// Loop until password input is valid
 		while (true) {
-			password = BankUI.promptPassword();
+			password = Prompt.promptPassword();
 			if (InputValidation.isValidPassword(password)) {
 				break;
 			}
@@ -74,18 +72,19 @@ public class MainMenu implements View {
 	}
 
 	private User login() {
-		String username = BankUI.promptUsername();
-		String password = BankUI.promptPassword();
+		while (true) {
+			String username = Prompt.promptUsername();
+			String password = Prompt.promptPassword();
 
-		// Check database for matching user input
-		User currentUser = new User(username, password);
-		try {
-			currentUser = userDao.getUser(username, password);
-			return currentUser;
-		} catch (UserDoesNotExistException e) {
-			e.printStackTrace();
+			// Check database for matching user input
+			User currentUser = new User(username, password);
+			try {
+				currentUser = userDao.getUser(username, password);
+				if (currentUser != null)
+					return currentUser;
+			} catch (UserDoesNotExistException e) {
+				e.printStackTrace();
+			}	
 		}
-
-		return null;
 	}
 }

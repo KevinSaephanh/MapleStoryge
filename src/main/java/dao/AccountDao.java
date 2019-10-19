@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import exceptions.AccountDoesNotExistException;
 import exceptions.EmptyTableException;
 import models.Account;
 import models.AccountType;
@@ -38,7 +39,7 @@ public class AccountDao {
 		}
 	}
 
-	public Account getAccountByTitle(String title) {
+	public Account getAccountByTitle(String title) throws AccountDoesNotExistException {
 		return null;
 	}
 

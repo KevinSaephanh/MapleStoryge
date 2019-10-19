@@ -125,7 +125,6 @@ public class UserDao {
 			PreparedStatement statement = connection.prepareStatement(sql);
 			statement.setInt(1, id);
 			statement.executeUpdate();
-			System.out.println("DELETED");
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
