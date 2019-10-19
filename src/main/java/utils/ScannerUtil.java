@@ -12,7 +12,7 @@ public class ScannerUtil {
 				int input = scanner.nextInt();
 				
 				// Check if input is greater than 0 and less than or equal to max
-				if (input > 0 && input <= max) {
+				if (input >= 0 && input <= max) {
 					return input;
 				}
 			}
