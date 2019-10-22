@@ -12,16 +12,21 @@ import models.Account;
 import utils.ConnectionUtil;
 
 public class AccountService {
-	public boolean createAccount(Account acc) throws AccountAlreadyExistsException {
+	public int createAccount(Account acc) throws AccountAlreadyExistsException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			if (!isTitleInUse(acc.getTitle())) {
-				String sql = "INSERT INTO maplestoryges (storage_type, title) VALUES(?, ?)";
+				// Create the account record in the database under table maplestoryges
+				String sql = "INSERT INTO maplestoryges (storage_type, title) VALUES(?, ?) RETURNING maplestoryge_id";
 				PreparedStatement statement = connection.prepareStatement(sql);
-
 				statement.setString(1, acc.getAccountType().toString());
 				statement.setString(2, acc.getTitle());
-				statement.executeUpdate();
-				return true;
+				statement.execute();
+
+				ResultSet rs = statement.getResultSet();
+				if (rs.next()) {
+					int accountId = rs.getInt("maplestoryge_id");
+					return accountId;	
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -50,11 +55,11 @@ public class AccountService {
 		throw new AccountAlreadyExistsException("Title: " + acc.getTitle() + " is already in use!");
 	}
 
-	public int deleteAccount(int maplestoryge_id) throws AccountDoesNotExistException {
+	public int deleteAccount(int maplestorygeId) throws AccountDoesNotExistException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			String sql = "DELETE FROM maplestoryges WHERE maplestoryge_id = ?";
 			PreparedStatement statement = connection.prepareStatement(sql);
-			statement.setInt(1, maplestoryge_id);
+			statement.setInt(1, maplestorygeId);
 			int deleteCount = statement.executeUpdate();
 
 			return deleteCount;
@@ -63,7 +68,24 @@ public class AccountService {
 		}
 
 		// If account does not exist, throw exception
-		throw new AccountDoesNotExistException("Account with id: " + maplestoryge_id + " does not exist");
+		throw new AccountDoesNotExistException("Account with id: " + maplestorygeId + " does not exist");
+	}
+
+	public int createSharedAccount(int accountId, int userId) {
+		try (Connection connection = ConnectionUtil.getConnection()) {
+			// Create the account record in the database under table maplestoryges
+			String sql = "INSERT INTO users_maplestoryges (user_id, maplestoryge_id) VALUES(?, ?)";
+			PreparedStatement statement = connection.prepareStatement(sql);
+			statement.setInt(1, userId);
+			statement.setInt(2, accountId);
+
+			int createCount = statement.executeUpdate();
+			return createCount;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return 0;
 	}
 
 	public BigDecimal deposit(Account acc, BigDecimal amount) {

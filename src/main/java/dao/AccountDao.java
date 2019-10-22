@@ -15,6 +15,24 @@ import models.AccountType;
 import utils.ConnectionUtil;
 
 public class AccountDao {
+	private Connection conn;
+
+	public AccountDao() {
+		this.conn = ConnectionUtil.getConnection();
+	}
+	
+	public void setConnection(Connection conn) {
+		try {
+			if (this.conn != null && !this.conn.isClosed()) {
+				System.out.println("Closing connection");
+				this.conn.close();
+			}
+			this.conn = conn;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public List<Account> getAllAccounts() throws EmptyTableException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			String sql = "SELECT * FROM maplestoryges ORDER BY title";

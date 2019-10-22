@@ -68,14 +68,13 @@ public class LoggedInMenu implements View {
 		while (true) {
 			String title = Prompt.promptTitle();
 			if (InputValidation.isValidTitle(title)) {
-				Account newAcc = new Account(title, at);
-				boolean created;
 				try {
-					created = accountService.createAccount(newAcc);
-					if (created) {
-						System.out.println("\nNew maple storage has been created!\n");
-						return;
-					}
+					Account newAcc = new Account(title, at);
+					int accountId = accountService.createAccount(newAcc);
+					
+					accountService.createSharedAccount(accountId, currentUser.getId());
+					System.out.println("\nNew maple storage has been created!\n");
+					return;
 				} catch (AccountAlreadyExistsException e) {
 					e.printStackTrace();
 				}

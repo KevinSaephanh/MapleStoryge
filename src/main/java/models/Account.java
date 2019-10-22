@@ -95,6 +95,6 @@ public class Account {
 
 	@Override
 	public String toString() {
-		return "\nMesos: " + balance + "\nTitle: " + title + "\nAccount Type: " + accountType.toString() + "\n";
+		return "\nMesos: $" + balance + "\nTitle: " + title + "\nAccount Type: " + accountType.toString() + "\n";
 	}
 }

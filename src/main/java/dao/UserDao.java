@@ -13,6 +13,24 @@ import models.User;
 import utils.ConnectionUtil;
 
 public class UserDao {
+	private Connection conn;
+
+	public UserDao() {
+		this.conn = ConnectionUtil.getConnection();
+	}
+	
+	public void setConnection(Connection conn) {
+		try {
+			if (this.conn != null && !this.conn.isClosed()) {
+				System.out.println("Closing connection");
+				this.conn.close();
+			}
+			this.conn = conn;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public User getUser(String username, String password) throws UserDoesNotExistException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			String sql = "SELECT * FROM users WHERE user_name = ? AND pass_word = ?";

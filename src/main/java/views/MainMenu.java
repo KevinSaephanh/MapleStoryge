@@ -80,6 +80,7 @@ public class MainMenu implements View {
 			User currentUser = new User(username, password);
 			try {
 				currentUser = userDao.getUser(username, password);
+				System.out.println(currentUser.getId());
 				if (currentUser != null)
 					return currentUser;
 			} catch (UserDoesNotExistException e) {
