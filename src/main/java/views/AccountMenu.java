@@ -1,6 +1,10 @@
 package views;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import models.Account;
 import models.User;
@@ -41,7 +45,16 @@ public class AccountMenu implements View {
 			transferFunds();
 			return this;
 		case 0:
-			return new AccountMainMenu(currentUser);
+			try {
+				return new AccountMainMenu(currentUser);
+			} catch (UnsupportedAudioFileException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (LineUnavailableException e) {
+				e.printStackTrace();
+			}
+			return this;
 		default:
 			return this;
 		}

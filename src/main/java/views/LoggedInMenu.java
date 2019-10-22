@@ -2,9 +2,20 @@ package views;
 
 import services.AccountService;
 import services.UserService;
+
+import java.io.File;
+import java.io.IOException;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import exceptions.AccountAlreadyExistsException;
 import exceptions.UserAlreadyExistsException;
 import exceptions.UserDoesNotExistException;
+import main.AudioClips;
 import models.Account;
 import models.AccountType;
 import models.User;
@@ -15,10 +26,18 @@ public class LoggedInMenu implements View {
 	private User currentUser;
 	private UserService userService = new UserService();
 	private AccountService accountService = new AccountService();
-
-	public LoggedInMenu(User currentUser) {
-		super();
+	private Clip clip;
+	
+	public LoggedInMenu(User currentUser) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 		this.currentUser = currentUser;
+		
+		File file = new File(AudioClips.HENESYS.toString());
+		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file.getAbsoluteFile());
+		clip = AudioSystem.getClip();
+
+		// Open clip in audioInputStream and loop
+		clip.open(audioInputStream);
+		clip.loop(Clip.LOOP_CONTINUOUSLY);
 	}
 
 	public void printMenu() {
@@ -49,15 +68,34 @@ public class LoggedInMenu implements View {
 			createAccount(AccountType.SAVINGS);
 			return this;
 		case 3:
-			return new AccountMainMenu(currentUser);
+			try {
+				clip.close();
+				return new AccountMainMenu(currentUser);
+			} catch (UnsupportedAudioFileException e1) {
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			} catch (LineUnavailableException e1) {
+				e1.printStackTrace();
+			}
+			return this;
 		case 4:
 			updateUser();
 			return this;
 		case 5:
 			return deleteUser();
 		case 0:
-			System.out.println("Logging out...");
-			return new MainMenu();
+			System.out.println("Logging out...\n");
+			try {
+				clip.close();
+				return new MainMenu();
+			} catch (UnsupportedAudioFileException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (LineUnavailableException e) {
+				e.printStackTrace();
+			}
 		default:
 			return this;
 		}
@@ -97,13 +135,15 @@ public class LoggedInMenu implements View {
 					int update = 0;
 					try {
 						update = userService.updateUser(currentUser, username, currentUser.getPassword());
+						
+						// If update returns less than 1, then the update q
+						if (update > 0) {
+							currentUser.setUsername(username);
+						}
+						break;
 					} catch (UserAlreadyExistsException e) {
 						e.printStackTrace();
 					}
-					if (update > 0) {
-						currentUser.setUsername(username);
-					}
-					break;
 				}
 			}
 			break;
@@ -176,7 +216,15 @@ public class LoggedInMenu implements View {
 			}
 			System.out.printf("User %s has been deleted\n", currentUser.getUsername());
 			System.out.println("Returning to main menu\n");
-			return new MainMenu();
+			try {
+				return new MainMenu();
+			} catch (UnsupportedAudioFileException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (LineUnavailableException e) {
+				e.printStackTrace();
+			}
 		case 'n':
 		default:
 			return this;

@@ -1,11 +1,20 @@
 package views;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import dao.AccountDao;
 import exceptions.AccountDoesNotExistException;
 import exceptions.EmptyTableException;
 import exceptions.UserDoesNotExistException;
+import main.AudioClips;
 import models.Account;
 import models.User;
 import services.AccountService;
@@ -14,9 +23,19 @@ import utils.ScannerUtil;
 public class AccountMainMenu implements View {
 	private User currentUser;
 	private AccountDao accountDao = new AccountDao();
-
-	public AccountMainMenu(User currentUser) {
+	private Clip clip;
+	
+	public AccountMainMenu(User currentUser) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 		this.currentUser = currentUser;
+		
+		// Audio set up
+		File file = new File(AudioClips.RAINDROP_FLOWER.toString());
+		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file.getAbsoluteFile());
+		clip = AudioSystem.getClip();
+
+		// Open clip in audioInputStream and loop
+		clip.open(audioInputStream);
+		clip.loop(Clip.LOOP_CONTINUOUSLY);
 	}
 
 	private void printMenu() {
@@ -67,7 +86,16 @@ public class AccountMainMenu implements View {
 			joinAccount();
 			return this;
 		case 0:
-			return new LoggedInMenu(currentUser);
+			try {
+				clip.close();
+				return new LoggedInMenu(currentUser);
+			} catch (UnsupportedAudioFileException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (LineUnavailableException e) {
+				e.printStackTrace();
+			}
 		default:
 			return this;
 		}
@@ -111,10 +139,13 @@ public class AccountMainMenu implements View {
 	}
 
 	private void joinAccount() {
+		// Retrieve account by its title
 		Account account = searchByTitle();
-
+		
+		// Create the shared account in users_maplestoryges table 
 		AccountService accountService = new AccountService();
 		accountService.createSharedAccount(account.getId(), currentUser.getId());
+		
 		System.out.printf("You're now part of the %s party!\n\n", account.getTitle());
 	}
 }

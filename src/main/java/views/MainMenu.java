@@ -1,8 +1,18 @@
 package views;
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import dao.UserDao;
 import exceptions.UserAlreadyExistsException;
 import exceptions.UserDoesNotExistException;
+import main.AudioClips;
 import models.User;
 import services.UserService;
 import utils.InputValidation;
@@ -11,6 +21,18 @@ import utils.ScannerUtil;
 public class MainMenu implements View {
 	private UserDao userDao = new UserDao();
 	private UserService userService = new UserService();
+	private Clip clip;
+	
+	public MainMenu() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+		File file = new File(AudioClips.LOGIN.toString());
+//		File file = new File(this.getClass().getResource(AudioClips.LOGIN.toString()).toString());
+		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file.getAbsoluteFile());
+		clip = AudioSystem.getClip();
+
+		// Open clip in audioInputStream and loop
+		clip.open(audioInputStream);
+		clip.loop(Clip.LOOP_CONTINUOUSLY);
+	}
 
 	public static void printMenu() {
 		System.out.println("Welcome to MapleStoryge UwU!");
@@ -33,7 +55,16 @@ public class MainMenu implements View {
 			return this;
 		case 2:
 			User user = login();
-			return new LoggedInMenu(user);
+			try {
+				clip.close();
+				return new LoggedInMenu(user);
+			} catch (UnsupportedAudioFileException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (LineUnavailableException e) {
+				e.printStackTrace();
+			}
 		default:
 			return this;
 		}
@@ -48,6 +79,8 @@ public class MainMenu implements View {
 			username = Prompt.promptUsername();
 			if (InputValidation.isValidUsername(username)) {
 				break;
+			} else {
+
 			}
 		}
 

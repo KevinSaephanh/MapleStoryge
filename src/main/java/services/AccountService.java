@@ -14,7 +14,7 @@ import utils.ConnectionUtil;
 public class AccountService {
 	public int createAccount(Account acc) throws AccountAlreadyExistsException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
-			if (!isTitleInUse(acc.getTitle())) {
+			if (!AccountValidatorService.isTitleInUse(acc.getTitle())) {
 				// Create the account record in the database under table maplestoryges
 				String sql = "INSERT INTO maplestoryges (storage_type, title) VALUES(?, ?) RETURNING maplestoryge_id";
 				PreparedStatement statement = connection.prepareStatement(sql);
@@ -38,7 +38,7 @@ public class AccountService {
 
 	public int updateAccount(Account acc, String title) throws AccountAlreadyExistsException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
-			if (!isTitleInUse(acc.getTitle())) {
+			if (!AccountValidatorService.isTitleInUse(acc.getTitle())) {
 				String sql = "UPDATE maplestoryges SET title = ? WHERE maplestoryge_id = ?";
 				PreparedStatement statement = connection.prepareStatement(sql);
 				statement.setString(1, title);
@@ -174,23 +174,5 @@ public class AccountService {
 		}
 
 		return null;
-	}
-
-	private boolean isTitleInUse(String title) {
-		try (Connection connection = ConnectionUtil.getConnection()) {
-			String sql = "SELECT * FROM maplestoryges WHERE title = ?";
-			PreparedStatement statement = connection.prepareStatement(sql);
-			statement.setString(1, title);
-			ResultSet rs = statement.executeQuery();
-
-			// If result set is not empty, title is in use
-			if (rs.next()) {
-				return true;
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return false;
 	}
 }
