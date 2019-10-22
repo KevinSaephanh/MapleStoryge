@@ -103,7 +103,7 @@ public class UserDao {
 
 	public int updateUser(User user, String newUsername, String newPassword) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
-			String sql = "UPDATE users SET user_name = ?, pass_word = ? " + "WHERE id = ?";
+			String sql = "UPDATE users SET user_name = ?, pass_word = ? " + "WHERE user_id = ?";
 			PreparedStatement statement = connection.prepareStatement(sql);
 			
 			statement.setString(1, newUsername);
@@ -119,11 +119,11 @@ public class UserDao {
 		return 0;
 	}
 
-	public boolean deleteUser(int id) {
+	public boolean deleteUser(int user_id) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
-			String sql = "DELETE FROM users WHERE id = ?";
+			String sql = "DELETE FROM users WHERE user_id = ?";
 			PreparedStatement statement = connection.prepareStatement(sql);
-			statement.setInt(1, id);
+			statement.setInt(1, user_id);
 			statement.executeUpdate();
 			return true;
 		} catch (SQLException e) {
@@ -133,11 +133,11 @@ public class UserDao {
 	}
 
 	private User extractUser(ResultSet rs) throws SQLException {
-		int id = rs.getInt("id");
+		int user_id = rs.getInt("user_id");
 		String username = rs.getString("user_name");
 		String password = rs.getString("pass_word");
 
-		User user = new User(id, username, password);
+		User user = new User(user_id, username, password);
 		return user;
 	}
 
