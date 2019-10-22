@@ -33,7 +33,6 @@ public class ScannerUtil {
 	
 	public static BigDecimal getBigDecimalInput() {
 		BigDecimal input = null;
-		
 		if (scanner.hasNextBigDecimal()) {
 			input = scanner.nextBigDecimal();
 		}

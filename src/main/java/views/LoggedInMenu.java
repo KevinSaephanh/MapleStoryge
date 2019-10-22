@@ -1,7 +1,9 @@
 package views;
 
-import dao.AccountDao;
-import dao.UserDao;
+import services.AccountService;
+import services.UserService;
+import exceptions.UserAlreadyExistsException;
+import exceptions.UserDoesNotExistException;
 import models.Account;
 import models.AccountType;
 import models.User;
@@ -10,8 +12,8 @@ import utils.ScannerUtil;
 
 public class LoggedInMenu implements View {
 	private User currentUser;
-	private UserDao userDao = new UserDao();
-	private AccountDao accountDao = new AccountDao();
+	private UserService userService = new UserService();
+	private AccountService accountService = new AccountService();
 
 	public LoggedInMenu(User currentUser) {
 		super();
@@ -22,7 +24,7 @@ public class LoggedInMenu implements View {
 		System.out.printf("\nHi, %s!\n", currentUser.getUsername());
 		System.out.println("Choose from one of the options below:");
 		System.out.println(
-				"1) Create a checking storage\n" + "2) Create a savings storage\n" + "3) View/Edit your storages\n"
+				"1) Create a checking storage\n" + "2) Create a savings storage\n" + "3) Browse/edit storages\n"
 						+ "4) Update your personal info\n" + "5) Delete your user account\n" + "0) Log out");
 	}
 
@@ -68,7 +70,7 @@ public class LoggedInMenu implements View {
 			String title = Prompt.promptTitle();
 			if (InputValidation.isValidTitle(title)) {
 				Account newAcc = new Account(title, at);
-				boolean created = accountDao.createAccount(newAcc);
+				boolean created = accountService.createAccount(newAcc);
 				if (created) {
 					System.out.println("\nNew maple storage has been created!\n");
 				}
@@ -89,7 +91,12 @@ public class LoggedInMenu implements View {
 				
 				// Check if username is valid
 				if (InputValidation.isValidUsername(username)) {
-					int update = userDao.updateUser(currentUser, username, currentUser.getPassword());
+					int update = 0;
+					try {
+						update = userService.updateUser(currentUser, username, currentUser.getPassword());
+					} catch (UserAlreadyExistsException e) {
+						e.printStackTrace();
+					}
 					if (update > 0) {
 						currentUser.setUsername(username);
 					}
@@ -104,7 +111,11 @@ public class LoggedInMenu implements View {
 				
 				// Check if password is valid
 				if (InputValidation.isValidPassword(password)) {
-					userDao.updateUser(currentUser, currentUser.getUsername(), password);
+					try {
+						userService.updateUser(currentUser, currentUser.getUsername(), password);
+					} catch (UserAlreadyExistsException e) {
+						e.printStackTrace();
+					}
 					break;
 				}
 			}
@@ -118,7 +129,12 @@ public class LoggedInMenu implements View {
 			while (true) {
 				username = Prompt.promptUsername();
 				if (InputValidation.isValidUsername(username)) {
-					int update = userDao.updateUser(currentUser, username, password);
+					int update = 0;
+					try {
+						update = userService.updateUser(currentUser, username, password);
+					} catch (UserAlreadyExistsException e) {
+						e.printStackTrace();
+					}
 					if (update > 0) {
 						currentUser.setUsername(username);
 					}
@@ -134,7 +150,11 @@ public class LoggedInMenu implements View {
 				}
 			}
 
-			userDao.updateUser(currentUser, username, password);
+			try {
+				userService.updateUser(currentUser, username, password);
+			} catch (UserAlreadyExistsException e) {
+				e.printStackTrace();
+			}
 		}
 		default:
 			break;
@@ -146,9 +166,13 @@ public class LoggedInMenu implements View {
 
 		switch (answer.toLowerCase().charAt(0)) {
 		case 'y':
-			userDao.deleteUser(currentUser.getId());
+			try {
+				userService.deleteUser(currentUser.getId());
+			} catch (UserDoesNotExistException e) {
+				e.printStackTrace();
+			}
 			System.out.printf("User %s has been deleted\n", currentUser.getUsername());
-			System.out.println("Returning to main menu");
+			System.out.println("Returning to main menu\n");
 			return new MainMenu();
 		case 'n':
 		default:

@@ -36,9 +36,7 @@ public class InputValidation {
 		return match;
 	}
 	
-	public static boolean isValidTitle(String title) {
-		// boolean match = getMatch(TITLE_PATTERN, title);
-		
+	public static boolean isValidTitle(String title) {		
 		if (title.length() < 3 || title.length() > 30) {
 			System.out.println("Your storage name must follow this format:\n" +
 								"- Must be at least 3 characters long\n" +

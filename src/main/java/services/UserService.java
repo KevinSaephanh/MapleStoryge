@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import exceptions.UserAlreadyExistsException;
+import exceptions.UserDoesNotExistException;
 import models.User;
 import utils.ConnectionUtil;
 
@@ -30,37 +31,42 @@ public class UserService {
 		throw new UserAlreadyExistsException("Username: " + user.getUsername() + " is already in use!");
 	}
 
-	public int updateUser(User user, String newUsername, String newPassword) {
+	public int updateUser(User user, String newUsername, String newPassword) throws UserAlreadyExistsException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
-			String sql = "UPDATE users SET user_name = ?, pass_word = ? " + "WHERE user_id = ?";
-			PreparedStatement statement = connection.prepareStatement(sql);
+			if (!isUsernameInUse(newUsername)) {
+				String sql = "UPDATE users SET user_name = ?, pass_word = ? " + "WHERE user_id = ?";
+				PreparedStatement statement = connection.prepareStatement(sql);
 
-			statement.setString(1, newUsername);
-			statement.setString(2, newPassword);
-			statement.setInt(3, user.getId());
-			int update = statement.executeUpdate();
+				statement.setString(1, newUsername);
+				statement.setString(2, newPassword);
+				statement.setInt(3, user.getId());
+				int updateCount = statement.executeUpdate();
 
-			return update;
+				return updateCount;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
-		return 0;
+		// If username is in use, throw exception
+		throw new UserAlreadyExistsException("Username: " + user.getUsername() + " is already in use!");
 	}
 
-	public boolean deleteUser(int user_id) {
+	public int deleteUser(int user_id) throws UserDoesNotExistException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			String sql = "DELETE FROM users WHERE user_id = ?";
 			PreparedStatement statement = connection.prepareStatement(sql);
 			statement.setInt(1, user_id);
-			statement.executeUpdate();
-			return true;
+			int deleteCount = statement.executeUpdate();
+			
+			return deleteCount;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return false;
 		}
+		
+		throw new UserDoesNotExistException("User with id: " + user_id + " does not exist");
 	}
-	
+
 	private boolean isUsernameInUse(String username) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			String sql = "SELECT * FROM users WHERE user_name = ?";

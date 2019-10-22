@@ -18,7 +18,7 @@ public class Prompt {
 	}
 	
 	public static String promptTitle() {
-		System.out.print("Enter a name for this storage: ");
+		System.out.print("Enter a storage name: ");
 		String title = ScannerUtil.getStringInput();
 		return title;
 	}
@@ -43,7 +43,13 @@ public class Prompt {
 	
 	public static String promptConfirmDelete() {
 		System.out.println("Are you sure you want to go through with this delete (y/n)?");
-		String answer = ScannerUtil.getStringInput();
-		return answer;
+		String reply = ScannerUtil.getStringInput();
+		return reply;
+	}
+	
+	public static String promptJointAccount() {
+		System.out.println("Would you like to join this storage OwO (y/n)?");
+		String reply = ScannerUtil.getStringInput();
+		return reply;
 	}
 }

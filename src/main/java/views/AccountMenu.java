@@ -1,9 +1,11 @@
 package views;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import dao.AccountDao;
 import exceptions.AccountDoesNotExistException;
+import exceptions.EmptyTableException;
 import models.Account;
 import models.User;
 import utils.InputValidation;
@@ -20,54 +22,69 @@ public class AccountMenu implements View {
 
 	private void printAccountMainMenu() {
 		System.out.println("Choose from one of the options below:");
-		System.out.println("1) View all your maple storages\n" + 
-							"2) Search for your storage by its title\n" +
-							"3) \n" +
-				 			"0) Back to user menu");
+		System.out.println("1) View all your maple storages\n" + "2) Look through all maple storages\n"
+				+ "3) Search for a storage by its title\n" + "0) Back to user menu");
 	}
 
 	private void printEditMenu() {
 		System.out.println(currentAccount.toString());
 		System.out.println("Choose from one of the options below:");
-		System.out.println("1) Deposit mesos\n" +
-							"2) Withdraw mesos\n" +
-							"0) Back to main account menu");
+		System.out.println("1) Deposit mesos\n" + "2) Withdraw mesos\n" + "0) Back to main account menu");
 	}
-	
+
 	private void printAllAccounts() {
-		
+		try {
+			List<Account> accounts = accountDao.getAllAccounts();
+
+			for (Account acc : accounts) {
+				acc.printAccount();
+			}
+		} catch (EmptyTableException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void printSpecificUserAccounts() {
+
 	}
 
 	@Override
 	public View process() {
 		printAccountMainMenu();
 
-		int selection = ScannerUtil.getInput(2);
+		int selection = ScannerUtil.getInput(3);
 
 		switch (selection) {
 		case 1:
-			printAllAccounts();
-			int accID = ScannerUtil.getInput(3);
-			
+			printSpecificUserAccounts();
+			return this;
 		case 2:
+			printAllAccounts();
+			return this;
+		case 3:
 			searchByTitle();
+			return this;
 		case 0:
 			return new LoggedInMenu(currentUser);
 		default:
 			return this;
 		}
 	}
-	
+
 	private void searchByTitle() {
 		String title = Prompt.promptTitle();
-		
+
 		try {
 			currentAccount = accountDao.getAccountByTitle(title);
+			
+			if (currentAccount != null) {
+				currentAccount.printAccount();
+			}
 		} catch (AccountDoesNotExistException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void deposit() {
 		while (true) {
 			BigDecimal amount = Prompt.promptDeposit();
