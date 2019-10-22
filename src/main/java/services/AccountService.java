@@ -66,34 +66,48 @@ public class AccountService {
 		throw new AccountDoesNotExistException("Account with id: " + maplestoryge_id + " does not exist");
 	}
 
-	public int deposit(Account acc, BigDecimal amount) {
+	public BigDecimal deposit(Account acc, BigDecimal amount) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
-			String sql = "UPDATE maplestoryges SET mesos = mesos + ?";
+			String sql = "UPDATE maplestoryges SET mesos = mesos + ? WHERE maplestoryge_id = ? RETURNING mesos";
 			PreparedStatement statement = connection.prepareStatement(sql);
 
 			statement.setBigDecimal(1, amount);
-			int depositCount = statement.executeUpdate();
-			return depositCount;
+			statement.setInt(2, acc.getId());
+			statement.execute();
+
+			// Get result set from RETURNING clause
+			ResultSet rs = statement.getResultSet();
+			if (rs.next()) {
+				BigDecimal balance = rs.getBigDecimal("mesos");
+				return balance;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
-		return 0;
+		return null;
 	}
 
-	public int withdraw(Account acc, BigDecimal amount) {
+	public BigDecimal withdraw(Account acc, BigDecimal amount) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
-			String sql = "UPDATE maplestoryges SET mesos = mesos - ?";
+			String sql = "UPDATE maplestoryges SET mesos = mesos - ? WHERE maplestoryge_id = ? RETURNING mesos";
 			PreparedStatement statement = connection.prepareStatement(sql);
 
 			statement.setBigDecimal(1, amount);
-			int withdrawCount = statement.executeUpdate();
-			return withdrawCount;
+			statement.setInt(2, acc.getId());
+			statement.execute();
+
+			// Get result set from RETURNING clause
+			ResultSet rs = statement.getResultSet();
+			if (rs.next()) {
+				BigDecimal balance = rs.getBigDecimal("mesos");
+				return balance;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
-		return 0;
+		return null;
 	}
 
 	private boolean isTitleInUse(String title) {

@@ -32,10 +32,8 @@ public class LoggedInMenu implements View {
 	public void printUpdateMenu() {
 		System.out.println("What info would you like to change?");
 		System.out.println("Choose from one of the options below:");
-		System.out.println("1) My username\n" +
-							"2) My password\n" +
-							"3) Both my username and password\n" +
-							"0) I've changed my mind, take me back");
+		System.out.println("1) My username\n" + "2) My password\n" + "3) Both my username and password\n"
+				+ "0) I've changed my mind, take me back");
 	}
 
 	@Override
@@ -94,7 +92,7 @@ public class LoggedInMenu implements View {
 		case 1: {
 			while (true) {
 				String username = Prompt.promptUsername();
-				
+
 				// Check if username is valid
 				if (InputValidation.isValidUsername(username)) {
 					int update = 0;
@@ -114,7 +112,7 @@ public class LoggedInMenu implements View {
 		case 2: {
 			while (true) {
 				String password = Prompt.promptPassword();
-				
+
 				// Check if password is valid
 				if (InputValidation.isValidPassword(password)) {
 					try {

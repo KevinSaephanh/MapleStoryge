@@ -84,7 +84,7 @@ public class MainMenu implements View {
 					return currentUser;
 			} catch (UserDoesNotExistException e) {
 				e.printStackTrace();
-			}	
+			}
 		}
 	}
 }

@@ -50,10 +50,11 @@ public class AccountMenu implements View {
 	private void deposit() {
 		while (true) {
 			BigDecimal amount = Prompt.promptDeposit();
-			if (InputValidation.isAmountGreaterThanZero(amount)
-					&& InputValidation.isAmountWithinBalance(amount, currentAccount.getBalance())) {
-				accountService.deposit(currentAccount, amount);
-				break;
+			if (InputValidation.isAmountGreaterThanZero(amount)) {
+				BigDecimal newBalance = accountService.deposit(currentAccount, amount);
+				currentAccount.setBalance(newBalance);
+				System.out.printf("You deposited %.2f mesos!\n", amount);
+				return;
 			}
 		}
 	}
@@ -61,9 +62,12 @@ public class AccountMenu implements View {
 	private void withdraw() {
 		while (true) {
 			BigDecimal amount = Prompt.promptWithdraw();
-			if (InputValidation.isAmountGreaterThanZero(amount)) {
-				accountService.withdraw(currentAccount, amount);
-				break;
+			if (InputValidation.isAmountGreaterThanZero(amount)
+					&& InputValidation.isAmountWithinBalance(amount, currentAccount.getBalance())) {
+				BigDecimal newBalance = accountService.withdraw(currentAccount, amount);
+				currentAccount.setBalance(newBalance);
+				System.out.printf("You withdrew %.2f mesos!\n", amount);
+				return;
 			}
 		}
 	}
@@ -73,8 +77,8 @@ public class AccountMenu implements View {
 			BigDecimal amount = Prompt.promptTransfer();
 			if (InputValidation.isAmountGreaterThanZero(amount)
 					&& InputValidation.isAmountWithinBalance(amount, currentAccount.getBalance())) {
-				
-				break;
+
+				return;
 			}
 		}
 	}

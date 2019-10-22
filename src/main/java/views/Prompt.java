@@ -16,7 +16,7 @@ public class Prompt {
 		String password = ScannerUtil.getStringInput();
 		return password;
 	}
-	
+
 	public static String promptTitle() {
 		System.out.print("Enter a storage name: ");
 		String title = ScannerUtil.getStringInput();
@@ -34,19 +34,19 @@ public class Prompt {
 		BigDecimal withdraw = ScannerUtil.getBigDecimalInput();
 		return withdraw;
 	}
-	
+
 	public static BigDecimal promptTransfer() {
 		System.out.print("Enter the amount you wish to transfer: $");
 		BigDecimal transfer = ScannerUtil.getBigDecimalInput();
 		return transfer;
 	}
-	
+
 	public static String promptConfirmDelete() {
 		System.out.println("Are you sure you want to go through with this delete (y/n)?");
 		String reply = ScannerUtil.getStringInput();
 		return reply;
 	}
-	
+
 	public static String promptJointAccount() {
 		System.out.println("Would you like to join this storage OwO (y/n)?");
 		String reply = ScannerUtil.getStringInput();

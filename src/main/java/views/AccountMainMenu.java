@@ -11,7 +11,6 @@ import utils.ScannerUtil;
 
 public class AccountMainMenu implements View {
 	private User currentUser;
-	private Account currentAccount;
 	private AccountDao accountDao = new AccountDao();
 
 	public AccountMainMenu(User currentUser) {
@@ -46,7 +45,7 @@ public class AccountMainMenu implements View {
 			try {
 				List<Account> accounts = accountDao.getUserAccountsByID(currentUser.getId());
 				printAccounts(accounts);
-				
+
 				return processPrintAccountsReply(accounts);
 			} catch (EmptyTableException e) {
 				e.printStackTrace();
@@ -56,7 +55,7 @@ public class AccountMainMenu implements View {
 			try {
 				List<Account> accounts = accountDao.getAllAccounts();
 				printAccounts(accounts);
-				
+
 				return processPrintAccountsReply(accounts);
 			} catch (EmptyTableException e) {
 				e.printStackTrace();
@@ -73,16 +72,19 @@ public class AccountMainMenu implements View {
 	}
 
 	private View processPrintAccountsReply(List<Account> accounts) {
-		// Set input limit to size of account list
+		Account currentAccount = null;
 		int selection = ScannerUtil.getInput(accounts.size());
+
+		// Check if index specified in accounts list is not null
 		if (accounts.get(selection) != null) {
 			currentAccount = accounts.get(selection);
 		}
-		
-		// If user selected 0, return to account main menu
-		if (selection == 0) {
+
+		// If selection equals accounts size, return to account main menu
+		if (selection == accounts.size()) {
 			return this;
 		}
+		
 		return new AccountMenu(currentUser, currentAccount);
 	}
 
@@ -90,11 +92,11 @@ public class AccountMainMenu implements View {
 		String title = Prompt.promptTitle();
 
 		try {
-			currentAccount = accountDao.getAccountByTitle(title);
+			Account account = accountDao.getAccountByTitle(title);
 
 			// Check if account returned is null
-			if (currentAccount != null) {
-				currentAccount.toString();
+			if (account != null) {
+				account.toString();
 			}
 		} catch (AccountDoesNotExistException e) {
 			e.printStackTrace();

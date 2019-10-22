@@ -57,7 +57,7 @@ public class InputValidation {
 	}
 	
 	public static boolean isAmountGreaterThanZero(BigDecimal amount) {
-		if (amount.compareTo(new BigDecimal(0.00)) <= 0) {
+		if (amount.compareTo(new BigDecimal(0.00)) > 0) {
 			return true;
 		}
 		return false;
