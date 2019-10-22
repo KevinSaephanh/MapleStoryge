@@ -55,7 +55,7 @@ public class Account {
 	}
 
 	public void setBalance(BigDecimal balance) {
-		balance.setScale(2);
+		balance.setScale(2, BigDecimal.ROUND_HALF_UP);
 		this.balance = balance;
 	}
 
