@@ -5,9 +5,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
-import exceptions.AccountDoesNotExistException;
 import exceptions.AccountAlreadyExistsException;
+import exceptions.AccountDoesNotExistException;
+import exceptions.UserDoesNotExistException;
 import models.Account;
 import utils.ConnectionUtil;
 
@@ -88,13 +90,13 @@ public class AccountService {
 		return 0;
 	}
 
-	public BigDecimal deposit(Account acc, BigDecimal amount) {
+	public BigDecimal deposit(int id, BigDecimal amount) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			String sql = "UPDATE maplestoryges SET mesos = mesos + ? WHERE maplestoryge_id = ? RETURNING mesos";
 			PreparedStatement statement = connection.prepareStatement(sql);
 
 			statement.setBigDecimal(1, amount);
-			statement.setInt(2, acc.getId());
+			statement.setInt(2, id);
 			statement.execute();
 
 			// Get result set from RETURNING clause
@@ -110,13 +112,13 @@ public class AccountService {
 		return null;
 	}
 
-	public BigDecimal withdraw(Account acc, BigDecimal amount) {
+	public BigDecimal withdraw(int id, BigDecimal amount) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			String sql = "UPDATE maplestoryges SET mesos = mesos - ? WHERE maplestoryge_id = ? RETURNING mesos";
 			PreparedStatement statement = connection.prepareStatement(sql);
 
 			statement.setBigDecimal(1, amount);
-			statement.setInt(2, acc.getId());
+			statement.setInt(2, id);
 			statement.execute();
 
 			// Get result set from RETURNING clause

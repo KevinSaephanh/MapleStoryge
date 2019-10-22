@@ -10,6 +10,7 @@ import java.util.List;
 
 import exceptions.AccountDoesNotExistException;
 import exceptions.EmptyTableException;
+import exceptions.UserDoesNotExistException;
 import models.Account;
 import models.AccountType;
 import utils.ConnectionUtil;
@@ -38,7 +39,6 @@ public class AccountDao {
 			String sql = "SELECT * FROM maplestoryges ORDER BY title";
 			PreparedStatement statement = connection.prepareStatement(sql);
 			ResultSet rs = statement.executeQuery();
-
 			List<Account> accounts = new ArrayList<>();
 			while (rs.next()) {
 				Account acc = extractAccount(rs);
@@ -53,8 +53,24 @@ public class AccountDao {
 		throw new EmptyTableException("No accounts in the database");
 	}
 
-	public List<Account> getUserAccountsByID(int user_id) throws EmptyTableException {
-		return null; // Use joint table
+	public List<Account> getSpecificUsersAccounts(int userId) throws UserDoesNotExistException {
+		try (Connection connection = ConnectionUtil.getConnection()) {
+			String sql = "SELECT * FROM maplestoryges JOIN users_maplestoryges USING(maplestoryge_id) WHERE user_id = ?";
+			PreparedStatement statement = connection.prepareStatement(sql);
+			statement.setInt(1, userId);
+			
+			ResultSet rs = statement.executeQuery();
+			List<Account> accounts = new ArrayList<>();
+			while (rs.next()) {
+				Account acc = extractAccount(rs);
+				accounts.add(acc);
+			}
+			return accounts;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		throw new UserDoesNotExistException("User with id: " + userId + " does not exist");
 	}
 
 	public Account getAccountByTitle(String title) throws AccountDoesNotExistException {

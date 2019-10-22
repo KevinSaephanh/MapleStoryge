@@ -5,6 +5,7 @@ import java.util.List;
 import dao.AccountDao;
 import exceptions.AccountDoesNotExistException;
 import exceptions.EmptyTableException;
+import exceptions.UserDoesNotExistException;
 import models.Account;
 import models.User;
 import utils.ScannerUtil;
@@ -43,11 +44,10 @@ public class AccountMainMenu implements View {
 		switch (selection) {
 		case 1:
 			try {
-				List<Account> accounts = accountDao.getUserAccountsByID(currentUser.getId());
+				List<Account> accounts = accountDao.getSpecificUsersAccounts(currentUser.getId());
 				printAccounts(accounts);
-
 				return processPrintAccountsReply(accounts);
-			} catch (EmptyTableException e) {
+			} catch (UserDoesNotExistException e) {
 				e.printStackTrace();
 			}
 			return this;
@@ -55,7 +55,6 @@ public class AccountMainMenu implements View {
 			try {
 				List<Account> accounts = accountDao.getAllAccounts();
 				printAccounts(accounts);
-
 				return processPrintAccountsReply(accounts);
 			} catch (EmptyTableException e) {
 				e.printStackTrace();
@@ -69,22 +68,24 @@ public class AccountMainMenu implements View {
 		default:
 			return this;
 		}
+
 	}
 
 	private View processPrintAccountsReply(List<Account> accounts) {
 		Account currentAccount = null;
 		int selection = ScannerUtil.getInput(accounts.size());
 
+		// If selection equals accounts size, return to account main menu
+		if (selection == accounts.size()) {
+			System.out.println("Returning to main account menu\n");
+			return this;
+		}
+
 		// Check if index specified in accounts list is not null
 		if (accounts.get(selection) != null) {
 			currentAccount = accounts.get(selection);
 		}
 
-		// If selection equals accounts size, return to account main menu
-		if (selection == accounts.size()) {
-			return this;
-		}
-		
 		return new AccountMenu(currentUser, currentAccount);
 	}
 

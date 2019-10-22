@@ -51,7 +51,7 @@ public class AccountMenu implements View {
 		while (true) {
 			BigDecimal amount = Prompt.promptDeposit();
 			if (InputValidation.isAmountGreaterThanZero(amount)) {
-				BigDecimal newBalance = accountService.deposit(currentAccount, amount);
+				BigDecimal newBalance = accountService.deposit(currentAccount.getId(), amount);
 				currentAccount.setBalance(newBalance);
 				System.out.printf("You deposited %.2f mesos!\n", amount);
 				return;
@@ -64,7 +64,7 @@ public class AccountMenu implements View {
 			BigDecimal amount = Prompt.promptWithdraw();
 			if (InputValidation.isAmountGreaterThanZero(amount)
 					&& InputValidation.isAmountWithinBalance(amount, currentAccount.getBalance())) {
-				BigDecimal newBalance = accountService.withdraw(currentAccount, amount);
+				BigDecimal newBalance = accountService.withdraw(currentAccount.getId(), amount);
 				currentAccount.setBalance(newBalance);
 				System.out.printf("You withdrew %.2f mesos!\n", amount);
 				return;
