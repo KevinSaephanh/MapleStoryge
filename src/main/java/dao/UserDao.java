@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import exceptions.EmptyTableException;
-import exceptions.UserAlreadyExistsException;
 import exceptions.UserDoesNotExistException;
 import models.User;
 import utils.ConnectionUtil;

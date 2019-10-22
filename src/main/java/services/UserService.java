@@ -20,7 +20,6 @@ public class UserService {
 				statement.setString(1, user.getUsername());
 				statement.setString(2, user.getPassword());
 				statement.executeUpdate();
-
 				return true;
 			}
 		} catch (SQLException e) {

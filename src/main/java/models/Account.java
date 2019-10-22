@@ -97,8 +97,4 @@ public class Account {
 	public String toString() {
 		return "\nMesos: " + balance + "\nTitle: " + title + "\nAccount Type: " + accountType.toString() + "\n";
 	}
-	
-	public void printAccount() {
-		System.out.printf(" %7.2f %20s %15s\n", balance, title, accountType.toString());
-	}
 }

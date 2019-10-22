@@ -61,8 +61,6 @@ public class MainMenu implements View {
 
 		// Create new user in database
 		User newUser = new User(username, password);
-		UserDao ud = new UserDao();
-
 		try {
 			boolean created = userService.createUser(newUser);
 			if (created) {

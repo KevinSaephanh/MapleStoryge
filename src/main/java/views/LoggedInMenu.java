@@ -2,6 +2,7 @@ package views;
 
 import services.AccountService;
 import services.UserService;
+import exceptions.AccountAlreadyExistsException;
 import exceptions.UserAlreadyExistsException;
 import exceptions.UserDoesNotExistException;
 import models.Account;
@@ -50,7 +51,7 @@ public class LoggedInMenu implements View {
 			createAccount(AccountType.SAVINGS);
 			return this;
 		case 3:
-			return new AccountMenu(currentUser);
+			return new AccountMainMenu(currentUser);
 		case 4:
 			updateUser();
 			return this;
@@ -70,11 +71,16 @@ public class LoggedInMenu implements View {
 			String title = Prompt.promptTitle();
 			if (InputValidation.isValidTitle(title)) {
 				Account newAcc = new Account(title, at);
-				boolean created = accountService.createAccount(newAcc);
-				if (created) {
-					System.out.println("\nNew maple storage has been created!\n");
+				boolean created;
+				try {
+					created = accountService.createAccount(newAcc);
+					if (created) {
+						System.out.println("\nNew maple storage has been created!\n");
+						return;
+					}
+				} catch (AccountAlreadyExistsException e) {
+					e.printStackTrace();
 				}
-				return;
 			}
 		}
 	}

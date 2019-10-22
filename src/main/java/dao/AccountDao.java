@@ -35,7 +35,7 @@ public class AccountDao {
 		throw new EmptyTableException("No accounts in the database");
 	}
 
-	public List<Account> getUserAccountsByID(int id) throws EmptyTableException {
+	public List<Account> getUserAccountsByID(int user_id) throws EmptyTableException {
 		return null; // Use joint table
 	}
 

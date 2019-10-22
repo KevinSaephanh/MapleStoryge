@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 public class InputValidation {
 	private static final String USERNAME_PATTERN = "[a-zA-Z0-9\\\\._\\\\-]{2,25}";
 	private static final String PASSWORD_PATTERN = "^(?=.*[A-Z])(?=.*\\d).{7,50}$";
-	private static final String TITLE_PATTERN = "^{3,30}$";
 	private static final String DECIMAL_PATTERN = "^\\d+\\.\\d{0,2}$";
 	
 	public static boolean isValidUsername(String username) {
