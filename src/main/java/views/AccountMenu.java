@@ -73,11 +73,14 @@ public class AccountMenu implements View {
 	}
 
 	private void transferFunds() {
+		String depositAccTitle = Prompt.promptTitle();
+		
 		while (true) {
 			BigDecimal amount = Prompt.promptTransfer();
 			if (InputValidation.isAmountGreaterThanZero(amount)
 					&& InputValidation.isAmountWithinBalance(amount, currentAccount.getBalance())) {
-
+				BigDecimal newBalance = accountService.transfer(amount, currentAccount.getTitle(), depositAccTitle);
+				currentAccount.setBalance(newBalance);
 				return;
 			}
 		}

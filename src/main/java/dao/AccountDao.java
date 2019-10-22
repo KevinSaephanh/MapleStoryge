@@ -21,7 +21,7 @@ public class AccountDao {
 	public AccountDao() {
 		this.conn = ConnectionUtil.getConnection();
 	}
-	
+
 	public void setConnection(Connection conn) {
 		try {
 			if (this.conn != null && !this.conn.isClosed()) {
@@ -58,7 +58,7 @@ public class AccountDao {
 			String sql = "SELECT * FROM maplestoryges JOIN users_maplestoryges USING(maplestoryge_id) WHERE user_id = ?";
 			PreparedStatement statement = connection.prepareStatement(sql);
 			statement.setInt(1, userId);
-			
+
 			ResultSet rs = statement.executeQuery();
 			List<Account> accounts = new ArrayList<>();
 			while (rs.next()) {
@@ -69,7 +69,7 @@ public class AccountDao {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		throw new UserDoesNotExistException("User with id: " + userId + " does not exist");
 	}
 
