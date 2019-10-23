@@ -1,8 +1,5 @@
 package views;
 
-import services.AccountService;
-import services.UserService;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -12,20 +9,19 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import dao.AccountDao;
 import exceptions.AccountAlreadyExistsException;
-import exceptions.UserAlreadyExistsException;
-import exceptions.UserDoesNotExistException;
 import main.AudioClips;
 import models.Account;
 import models.AccountType;
 import models.User;
+import services.UserService;
 import utils.InputValidation;
 import utils.ScannerUtil;
 
 public class LoggedInMenu implements View {
 	private User currentUser;
 	private UserService userService = new UserService();
-	private AccountService accountService = new AccountService();
 	private Clip clip;
 	
 	public LoggedInMenu(User currentUser) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
@@ -82,12 +78,25 @@ public class LoggedInMenu implements View {
 			}
 			return this;
 		case 4:
-			updateUser();
+			printUpdateMenu();
+			userService = new UserService(currentUser);
+			userService.updateUser();
 			clip.close();
 			return this;
 		case 5:
 			clip.close();
-			return deleteUser();
+			userService = new UserService(currentUser);
+			userService.deleteUser();
+			try {
+				return new MainMenu();
+			} catch (UnsupportedAudioFileException e1) {
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			} catch (LineUnavailableException e1) {
+				e1.printStackTrace();
+			}
+			return this;
 		case 0:
 			System.out.println("Logging out...\n");
 			try {
@@ -106,133 +115,22 @@ public class LoggedInMenu implements View {
 		}
 	}
 
-	private void createAccount(AccountType at) {
+	public void createAccount(AccountType at) {
 		// Loop until title input is valid
 		while (true) {
 			String title = Prompt.promptTitle();
 			if (InputValidation.isValidTitle(title)) {
 				try {
 					Account newAcc = new Account(title, at);
-					int accountId = accountService.createAccount(newAcc);
+					int accountId = new AccountDao().createAccount(newAcc);
 					
-					accountService.createSharedAccount(accountId, currentUser.getId());
+					new AccountDao().createSharedAccount(accountId, currentUser.getId());
 					System.out.println("\nNew maple storage has been created!\n");
 					return;
 				} catch (AccountAlreadyExistsException e) {
 					e.printStackTrace();
 				}
 			}
-		}
-	}
-
-	private void updateUser() {
-		printUpdateMenu();
-
-		int selection = ScannerUtil.getInput(3);
-
-		switch (selection) {
-		case 1: {
-			while (true) {
-				String username = Prompt.promptUsername();
-
-				// Check if username is valid
-				if (InputValidation.isValidUsername(username)) {
-					int update = 0;
-					try {
-						update = userService.updateUser(currentUser, username, currentUser.getPassword());
-						
-						// If update returns less than 1, then the update q
-						if (update > 0) {
-							currentUser.setUsername(username);
-						}
-						break;
-					} catch (UserAlreadyExistsException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			break;
-		}
-		case 2: {
-			while (true) {
-				String password = Prompt.promptPassword();
-
-				// Check if password is valid
-				if (InputValidation.isValidPassword(password)) {
-					try {
-						userService.updateUser(currentUser, currentUser.getUsername(), password);
-					} catch (UserAlreadyExistsException e) {
-						e.printStackTrace();
-					}
-					break;
-				}
-			}
-			break;
-		}
-		case 3: {
-			String username = "";
-			String password = "";
-
-			// Loop until username input is valid
-			while (true) {
-				username = Prompt.promptUsername();
-				if (InputValidation.isValidUsername(username)) {
-					int update = 0;
-					try {
-						update = userService.updateUser(currentUser, username, password);
-					} catch (UserAlreadyExistsException e) {
-						e.printStackTrace();
-					}
-					if (update > 0) {
-						currentUser.setUsername(username);
-					}
-					break;
-				}
-			}
-
-			// Loop until password input is valid
-			while (true) {
-				password = Prompt.promptPassword();
-				if (InputValidation.isValidPassword(password)) {
-					break;
-				}
-			}
-
-			try {
-				userService.updateUser(currentUser, username, password);
-			} catch (UserAlreadyExistsException e) {
-				e.printStackTrace();
-			}
-		}
-		default:
-			break;
-		}
-	}
-
-	private View deleteUser() {
-		String answer = Prompt.promptConfirmDelete();
-
-		switch (answer.toLowerCase().charAt(0)) {
-		case 'y':
-			try {
-				userService.deleteUser(currentUser);
-			} catch (UserDoesNotExistException e) {
-				e.printStackTrace();
-			}
-			System.out.printf("User %s has been deleted\n", currentUser.getUsername());
-			System.out.println("Returning to main menu\n");
-			try {
-				return new MainMenu();
-			} catch (UnsupportedAudioFileException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (LineUnavailableException e) {
-				e.printStackTrace();
-			}
-		case 'n':
-		default:
-			return this;
 		}
 	}
 }

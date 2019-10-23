@@ -1,67 +1,174 @@
 package services;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
+import dao.UserDao;
 import exceptions.UserAlreadyExistsException;
 import exceptions.UserDoesNotExistException;
 import models.User;
-import utils.ConnectionUtil;
+import utils.InputValidation;
+import utils.ScannerUtil;
+import views.Prompt;
 
 public class UserService {
-	public boolean createUser(User user) throws UserAlreadyExistsException {
-		try (Connection connection = ConnectionUtil.getConnection()) {
-			if (!UserValidatorService.isUsernameInUse(user.getUsername())) {
-				String sql = "INSERT INTO users (user_name, pass_word) VALUES(?, ?)";
-				PreparedStatement statement = connection.prepareStatement(sql);
+	private User currentUser;
+	private UserDao userDao = new UserDao();
 
-				statement.setString(1, user.getUsername());
-				statement.setString(2, user.getPassword());
-				statement.executeUpdate();
-				return true;
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+	public UserService() {
 
-		// If username is in use, throw exception
-		throw new UserAlreadyExistsException("Username: " + user.getUsername() + " is already in use!");
 	}
 
-	public int updateUser(User user, String newUsername, String newPassword) throws UserAlreadyExistsException {
-		try (Connection connection = ConnectionUtil.getConnection()) {
-			if (!UserValidatorService.isUsernameInUse(newUsername)) {
-				String sql = "UPDATE users SET user_name = ?, pass_word = ? " + "WHERE user_id = ?";
-				PreparedStatement statement = connection.prepareStatement(sql);
-
-				statement.setString(1, newUsername);
-				statement.setString(2, newPassword);
-				statement.setInt(3, user.getId());
-				int updateCount = statement.executeUpdate();
-
-				return updateCount;
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		// If username is in use, throw exception
-		throw new UserAlreadyExistsException("Username: " + user.getUsername() + " is already in use!");
+	public UserService(User currentUser) {
+		this.currentUser = currentUser;
 	}
 
-	public int deleteUser(User user) throws UserDoesNotExistException {
-		try (Connection connection = ConnectionUtil.getConnection()) {
-			String sql = "DELETE FROM users WHERE user_id = ?";
-			PreparedStatement statement = connection.prepareStatement(sql);
-			statement.setInt(1, user.getId());
-			int deleteCount = statement.executeUpdate();
-			
-			return deleteCount;
-		} catch (SQLException e) {
+	public void signup() {
+		String username = "";
+		String password = "";
+
+		// Loop until username input is valid
+		while (true) {
+			username = Prompt.promptUsername();
+			if (InputValidation.isValidUsername(username)) {
+				break;
+			} else {
+
+			}
+		}
+
+		// Loop until password input is valid
+		while (true) {
+			password = Prompt.promptPassword();
+			if (InputValidation.isValidPassword(password)) {
+				break;
+			}
+		}
+
+		// Create new user in database
+		User newUser = new User(username, password);
+		try {
+			boolean created = userDao.createUser(newUser);
+			if (created) {
+				System.out.println("\nNew user has been created\n");
+			}
+		} catch (UserAlreadyExistsException e) {
 			e.printStackTrace();
 		}
-		
-		throw new UserDoesNotExistException("User with id: " + user.getId() + " does not exist");
+	}
+
+	public User login() {
+		while (true) {
+			String username = Prompt.promptUsername();
+			String password = Prompt.promptPassword();
+
+			// Check database for matching user input
+			User currentUser = new User(username, password);
+			try {
+				currentUser = userDao.getUser(username, password);
+				if (currentUser != null)
+					return currentUser;
+			} catch (UserDoesNotExistException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void updateUser() {
+		int selection = ScannerUtil.getInput(3);
+
+		switch (selection) {
+		case 1: {
+			while (true) {
+				String username = Prompt.promptUsername();
+
+				// Check if username is valid
+				if (InputValidation.isValidUsername(username)) {
+					int update = 0;
+					try {
+						update = userDao.updateUser(currentUser, username, currentUser.getPassword());
+
+						// If update returns less than 1, then the update q
+						if (update > 0) {
+							currentUser.setUsername(username);
+						}
+						break;
+					} catch (UserAlreadyExistsException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			break;
+		}
+		case 2: {
+			while (true) {
+				String password = Prompt.promptPassword();
+
+				// Check if password is valid
+				if (InputValidation.isValidPassword(password)) {
+					try {
+						userDao.updateUser(currentUser, currentUser.getUsername(), password);
+					} catch (UserAlreadyExistsException e) {
+						e.printStackTrace();
+					}
+					break;
+				}
+			}
+			break;
+		}
+		case 3: {
+			String username = "";
+			String password = "";
+
+			// Loop until username input is valid
+			while (true) {
+				username = Prompt.promptUsername();
+				if (InputValidation.isValidUsername(username)) {
+					int update = 0;
+					try {
+						update = userDao.updateUser(currentUser, username, password);
+					} catch (UserAlreadyExistsException e) {
+						e.printStackTrace();
+					}
+					if (update > 0) {
+						currentUser.setUsername(username);
+					}
+					break;
+				}
+			}
+
+			// Loop until password input is valid
+			while (true) {
+				password = Prompt.promptPassword();
+				if (InputValidation.isValidPassword(password)) {
+					break;
+				}
+			}
+
+			try {
+				userDao.updateUser(currentUser, username, password);
+			} catch (UserAlreadyExistsException e) {
+				e.printStackTrace();
+			}
+		}
+		default:
+			break;
+		}
+	}
+
+	public void deleteUser() {
+		String answer = Prompt.promptConfirmDelete();
+
+		switch (answer.toLowerCase().charAt(0)) {
+		case 'y':
+			try {
+				userDao.deleteUser(currentUser);
+			} catch (UserDoesNotExistException e) {
+				e.printStackTrace();
+			}
+			System.out.printf("User %s has been deleted\n", currentUser.getUsername());
+			System.out.println("Returning to main menu\n");
+			break;
+		case 'n':
+		default:
+			break;
+		}
 	}
 }

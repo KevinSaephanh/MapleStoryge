@@ -11,7 +11,6 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import dao.AccountDao;
-import exceptions.AccountDoesNotExistException;
 import exceptions.EmptyTableException;
 import exceptions.UserDoesNotExistException;
 import main.AudioClips;
@@ -22,7 +21,9 @@ import utils.ScannerUtil;
 
 public class AccountMainMenu implements View {
 	private User currentUser;
+	private Account currentAccount;
 	private AccountDao accountDao = new AccountDao();
+	private AccountService accountService = new AccountService();
 	private Clip clip;
 
 	public AccountMainMenu(User currentUser)
@@ -85,12 +86,12 @@ public class AccountMainMenu implements View {
 			clip.close();
 			return this;
 		case 3:
-			Account account = searchByTitle();
+			Account account = accountService.searchByTitle();
 			System.out.println(account.toString());
 			clip.close();
 			return this;
 		case 4:
-			joinAccount();
+			accountService.joinAccount();
 			clip.close();
 			return this;
 		case 0:
@@ -124,37 +125,10 @@ public class AccountMainMenu implements View {
 
 		// Check if index specified in accounts list is not null
 		if (accounts.get(selection) != null) {
-			Account currentAccount = accounts.get(selection);
+			currentAccount = accounts.get(selection);
 			return new AccountMenu(currentUser, currentAccount);
 		}
 
 		return null;
-	}
-
-	private Account searchByTitle() {
-		try {
-			String title = Prompt.promptTitle();
-			Account account = accountDao.getAccountByTitle(title);
-
-			// Check if account returned is null
-			if (account != null) {
-				return account;
-			}
-		} catch (AccountDoesNotExistException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-
-	private void joinAccount() {
-		// Retrieve account by its title
-		Account account = searchByTitle();
-
-		// Create the shared account in users_maplestoryges table
-		AccountService accountService = new AccountService();
-		accountService.createSharedAccount(account.getId(), currentUser.getId());
-
-		System.out.printf("You're now part of the %s party!\n\n", account.getTitle());
 	}
 }
