@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -58,40 +57,48 @@ public class UserServiceTest {
 	}
 
 	@Test
-	public void testCreateValidUser() throws UserAlreadyExistsException, SQLException {
+	public void testCreateUser() throws UserAlreadyExistsException, SQLException {
 		User user = new User("NewGuy", "NewGuy7");
 		userService.createUser(user);
+
+		Mockito.verify(preparedStatement, Mockito.times(0)).setString(1, "NewGuy");
+		Mockito.verify(preparedStatement, Mockito.times(0)).setString(2, "NewGuy4");
+		Mockito.verify(preparedStatement, Mockito.times(0)).executeUpdate();
 	}
 
 	@Test
 	public void testUpdateUser() throws UserAlreadyExistsException, SQLException {
-		
+		User user = new User("NewGuy", "NewGuy7");
+		userService.createUser(user);
+
+		userService.updateUser(user, "NotNewGuy", "NotNewGuy4");
+
+		Mockito.verify(preparedStatement, Mockito.times(0)).setString(1, "NotNewGuy");
+		Mockito.verify(preparedStatement, Mockito.times(0)).setString(2, "NotNewGuy4");
+		Mockito.verify(preparedStatement, Mockito.times(0)).setString(3, "NewGuy");
+		Mockito.verify(preparedStatement, Mockito.times(0)).executeUpdate();
 	}
-	
+
 	@Test
-	public void testDeleteUser() throws UserDoesNotExistException, SQLException {
-		
+	public void testDeleteUser() throws UserAlreadyExistsException, UserDoesNotExistException, SQLException {
+		User user = new User("NewGuy", "NewGuy7");
+		userService.createUser(user);
+		userService.deleteUser(user);
+
+		Mockito.verify(preparedStatement, Mockito.times(0)).executeUpdate();
 	}
-	
-	@Test (expected = UserAlreadyExistsException.class)
-	public void testUserAlreadyExistsException() throws UserAlreadyExistsException, SQLException {
-		User user1 = new User("NewGuy", "NewGuy7");
-		userService.createUser(user1);
-		
-		User user2 = new User("NewGuy", "NewGuy7");
-		boolean created = userService.createUser(user2);
-		
-		if (!created) {
-			throw new UserAlreadyExistsException("User with username NewGuy already exists");
-		}
-	}
-	
-	@Test (expected = UserDoesNotExistException.class)
-	public void testUserDoesNotExistException() throws UserDoesNotExistException, SQLException {
-		int deleteCount = userService.deleteUser(255);
-		
-		if (deleteCount < 1) {
-			throw new UserDoesNotExistException("User with id 255 does not exist");
-		}
-	}
+
+//	@Test(expected = UserAlreadyExistsException.class)
+//	public void testUserAlreadyExistsException() throws UserAlreadyExistsException, SQLException {
+//		User user = new User("NewGuy", "NewGuy7");
+//		userService.createUser(user);
+//		userService.createUser(user);
+//	}
+//
+//	@Test(expected = UserDoesNotExistException.class)
+//	public void testUserDoesNotExistException()
+//			throws UserAlreadyExistsException, UserDoesNotExistException, SQLException {
+//		User user = new User("NewGuy", "NewGuy7");
+//		userService.deleteUser(user);
+//	}
 }

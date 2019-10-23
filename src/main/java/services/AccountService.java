@@ -56,11 +56,11 @@ public class AccountService {
 		throw new AccountAlreadyExistsException("Title: " + acc.getTitle() + " is already in use!");
 	}
 
-	public int deleteAccount(int maplestorygeId) throws AccountDoesNotExistException {
+	public int deleteAccount(Account acc) throws AccountDoesNotExistException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			String sql = "DELETE FROM maplestoryges WHERE maplestoryge_id = ?";
 			PreparedStatement statement = connection.prepareStatement(sql);
-			statement.setInt(1, maplestorygeId);
+			statement.setInt(1, acc.getId());
 			int deleteCount = statement.executeUpdate();
 
 			return deleteCount;
@@ -69,7 +69,7 @@ public class AccountService {
 		}
 
 		// If account does not exist, throw exception
-		throw new AccountDoesNotExistException("Account with id: " + maplestorygeId + " does not exist");
+		throw new AccountDoesNotExistException("Account with id: " + acc.getId() + " does not exist");
 	}
 
 	public int createSharedAccount(int accountId, int userId) {

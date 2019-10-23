@@ -50,11 +50,11 @@ public class UserService {
 		throw new UserAlreadyExistsException("Username: " + user.getUsername() + " is already in use!");
 	}
 
-	public int deleteUser(int userId) throws UserDoesNotExistException {
+	public int deleteUser(User user) throws UserDoesNotExistException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			String sql = "DELETE FROM users WHERE user_id = ?";
 			PreparedStatement statement = connection.prepareStatement(sql);
-			statement.setInt(1, userId);
+			statement.setInt(1, user.getId());
 			int deleteCount = statement.executeUpdate();
 			
 			return deleteCount;
@@ -62,6 +62,6 @@ public class UserService {
 			e.printStackTrace();
 		}
 		
-		throw new UserDoesNotExistException("User with id: " + userId + " does not exist");
+		throw new UserDoesNotExistException("User with id: " + user.getId() + " does not exist");
 	}
 }

@@ -215,7 +215,7 @@ public class LoggedInMenu implements View {
 		switch (answer.toLowerCase().charAt(0)) {
 		case 'y':
 			try {
-				userService.deleteUser(currentUser.getId());
+				userService.deleteUser(currentUser);
 			} catch (UserDoesNotExistException e) {
 				e.printStackTrace();
 			}
