@@ -35,13 +35,14 @@ public class AccountMenu implements View {
 
 		switch (selection) {
 		case 1:
-			accountService.deposit();
+			accountService.deposit(currentAccount.getId());
 			return this;
 		case 2:
-			accountService.withdraw();
+			accountService.withdraw(currentAccount.getId());
 			return this;
 		case 3:
-			accountService.transferFunds();
+			Account depositAcc = accountService.searchByTitle();
+			accountService.transferFunds(currentAccount.getId(), depositAcc.getId());
 			return this;
 		case 0:
 			try {

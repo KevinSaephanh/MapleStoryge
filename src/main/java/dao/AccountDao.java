@@ -95,6 +95,25 @@ public class AccountDao {
 		throw new AccountDoesNotExistException("Account with title: " + title + " does not exist");
 	}
 	
+	public Account getAccountById(int id) throws AccountDoesNotExistException {
+		try (Connection connection = ConnectionUtil.getConnection()) {
+			String sql = "SELECT * FROM maplestoryges WHERE id = ?";
+			PreparedStatement statement = connection.prepareStatement(sql);
+			statement.setInt(1, id);
+			ResultSet rs = statement.executeQuery();
+
+			if (rs.next()) {
+				Account acc = extractAccount(rs);
+				return acc;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		// If result set is empty, throw exception
+		throw new AccountDoesNotExistException("Account with id: " + id + " does not exist");
+	}
+	
 	public int createAccount(Account acc) throws AccountAlreadyExistsException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			if (!AccountValidatorService.isTitleInUse(acc.getTitle())) {
@@ -215,24 +234,24 @@ public class AccountDao {
 		return null;
 	}
 
-	public BigDecimal transfer(BigDecimal transferAmount, String withdrawAccTitle, String depositAccTitle) {
+	public BigDecimal transfer(BigDecimal transferAmount, int withdrawAccId, int depositAccId) {
 		Connection connection = ConnectionUtil.getConnection();
 		try {
 			connection.setAutoCommit(false);
 
-			String withdrawSQL = "UPDATE maplestoryges SET mesos = mesos - ? WHERE title = ? RETURNING mesos";
-			String depositSQL = "UPDATE maplestoryges SET mesos = mesos + ? WHERE title = ?";
+			String withdrawSQL = "UPDATE maplestoryges SET mesos = mesos - ? WHERE maplestoryge_id = ? RETURNING mesos";
+			String depositSQL = "UPDATE maplestoryges SET mesos = mesos + ? WHERE maplestoryge_id = ?";
 			PreparedStatement withdrawStatement = connection.prepareStatement(withdrawSQL);
 			PreparedStatement depositStatement = connection.prepareStatement(depositSQL);
 
 			// Set and execute deposit statement
 			depositStatement.setBigDecimal(1, transferAmount);
-			depositStatement.setString(2, depositAccTitle);
+			depositStatement.setInt(2, depositAccId);
 			depositStatement.executeUpdate();
 
 			// Set and execute withdraw statement
 			withdrawStatement.setBigDecimal(1, transferAmount);
-			withdrawStatement.setString(2, withdrawAccTitle);
+			withdrawStatement.setInt(2, withdrawAccId);
 			withdrawStatement.execute();
 
 			// Get result set from RETURNING clause

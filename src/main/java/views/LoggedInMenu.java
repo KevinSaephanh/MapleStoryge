@@ -9,23 +9,22 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import dao.AccountDao;
-import exceptions.AccountAlreadyExistsException;
 import main.AudioClips;
-import models.Account;
 import models.AccountType;
 import models.User;
+import services.AccountService;
 import services.UserService;
-import utils.InputValidation;
 import utils.ScannerUtil;
 
 public class LoggedInMenu implements View {
 	private User currentUser;
+	private AccountService accountService;
 	private UserService userService = new UserService();
 	private Clip clip;
 	
 	public LoggedInMenu(User currentUser) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 		this.currentUser = currentUser;
+		accountService = new AccountService(currentUser);
 		
 		File file = new File(AudioClips.HENESYS.toString());
 		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file.getAbsoluteFile());
@@ -58,11 +57,11 @@ public class LoggedInMenu implements View {
 
 		switch (selection) {
 		case 1:
-			createAccount(AccountType.CHECKING);
+			accountService.createAccount(AccountType.CHECKING);
 			clip.close();
 			return this;
 		case 2:
-			createAccount(AccountType.SAVINGS);
+			accountService.createAccount(AccountType.SAVINGS);
 			clip.close();
 			return this;
 		case 3:
@@ -112,25 +111,6 @@ public class LoggedInMenu implements View {
 		default:
 			clip.close();
 			return this;
-		}
-	}
-
-	public void createAccount(AccountType at) {
-		// Loop until title input is valid
-		while (true) {
-			String title = Prompt.promptTitle();
-			if (InputValidation.isValidTitle(title)) {
-				try {
-					Account newAcc = new Account(title, at);
-					int accountId = new AccountDao().createAccount(newAcc);
-					
-					new AccountDao().createSharedAccount(accountId, currentUser.getId());
-					System.out.println("\nNew maple storage has been created!\n");
-					return;
-				} catch (AccountAlreadyExistsException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 }

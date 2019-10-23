@@ -60,6 +60,8 @@ public class InputValidation {
 		if (amount.compareTo(new BigDecimal(0.00)) > 0) {
 			return true;
 		}
+		
+		System.out.println("You must enter a number greater than 0!");
 		return false;
 	}
 	
@@ -67,6 +69,8 @@ public class InputValidation {
 		if (amount.compareTo(balance) <= 0) {
 			return true;
 		}
+		
+		System.out.println("You must enter an amount greater than or equal to your balance and less than 0!");
 		return false;
 	}
 	

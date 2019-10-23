@@ -1,135 +1,78 @@
 package serviceTests;
 
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import static org.junit.Assert.assertEquals;
 
-import org.junit.AfterClass;
+import java.math.BigDecimal;
+
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import exceptions.AccountAlreadyExistsException;
+import dao.AccountDao;
 import exceptions.AccountDoesNotExistException;
 import models.Account;
 import models.AccountType;
-import models.User;
 import services.AccountService;
-import utils.ConnectionUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AccountServiceTest {
 	@Mock
-	private AccountService accountService = Mockito.mock(AccountService.class);
+	private AccountDao accountDao = Mockito.mock(AccountDao.class);
 
 	@Mock
-	private static Connection connection;
+	private AccountService accountService;
 
-	@Mock
-	private PreparedStatement preparedStatement;
-
-	@Mock
-	private ResultSet resultSet;
-
-	@BeforeClass
-	public static void setUpBeforeClass() throws SQLException {
-		connection = ConnectionUtil.getConnection();
-
-		// Create spy objects watching Connection
-		connection = Mockito.spy(connection);
-	}
-	
 	@Before
-	public void setUp() throws SQLException {
-		Mockito.reset(connection);
-		Mockito.reset(preparedStatement);
-		Mockito.when(connection.createStatement()).thenReturn(preparedStatement);
+	public void setUp() {
+		accountService = new AccountService(accountDao);
+	}
+	
+	@Test
+	public void testDeposit() throws AccountDoesNotExistException {
+		Account account = new Account("NewAccount", AccountType.CHECKING);
+		int accountId = 20;
+		
+		Mockito.when(accountDao.getAccountById(accountId)).thenReturn(account);
+		accountService.deposit(accountId);
+		Mockito.verify(accountDao).getAccountById(accountId);
+		
+		assertEquals("0 + 100 = 1100", new BigDecimal(100), account.getBalance());
 	}
 
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-		// Drop created table after tests complete
-		ConnectionUtil.getConnection().createStatement().executeUpdate("DROP TABLE users");
-		connection.close();
+	@Test
+	public void testWithdraw() throws AccountDoesNotExistException {
+		Account account = new Account("NewAccount", AccountType.SAVINGS);
+		account.setBalance(new BigDecimal(2345));
+		int accountId = 20;
+		
+		Mockito.when(accountDao.getAccountById(accountId)).thenReturn(account);
+		accountService.withdraw(accountId);
+		Mockito.verify(accountDao).getAccountById(accountId);
+		
+		assertEquals("2345 - 345 = 2000", new BigDecimal(2000), account.getBalance());
 	}
-	
-//	@Test
-//	public void testCreateAccount() throws AccountAlreadyExistsException, SQLException {
-//		Account account = new Account("NewAccount", AccountType.CHECKING);
-//		accountService.createAccount(account);
-//		
-//		Mockito.verify(preparedStatement, Mockito.times(0)).setString(1, "NewAccount");
-//		Mockito.verify(preparedStatement, Mockito.times(0)).setString(2, AccountType.CHECKING.toString());
-//		Mockito.verify(preparedStatement, Mockito.times(0)).executeUpdate();
-//	}
-//	
-//	@Test
-//	public void testCreateSharedAccount() throws SQLException {
-//		Account account = new Account(1, new BigDecimal(20) ,"NewAccount", AccountType.CHECKING);
-//		User user = new User(3, "NewUser", "NewUser234");
-//		accountService.createSharedAccount(account.getId(), user.getId());
-//		
-//		Mockito.verify(preparedStatement, Mockito.times(0)).setInt(1, account.getId());
-//		Mockito.verify(preparedStatement, Mockito.times(0)).setInt(2, user.getId());
-//		Mockito.verify(preparedStatement, Mockito.times(0)).executeUpdate();
-//	}
-//	
-//	@Test
-//	public void testUpdateAccount() throws AccountAlreadyExistsException, SQLException {
-//		Account account = new Account("NewAccount", AccountType.CHECKING);
-//		accountService.createAccount(account);
-//		accountService.updateAccount(account, "OldAccount");
-//		
-//		Mockito.verify(preparedStatement, Mockito.times(0)).setString(1, "OldAccount");
-//		Mockito.verify(preparedStatement, Mockito.times(0)).setString(2, "NewAccount");
-//		Mockito.verify(preparedStatement, Mockito.times(0)).executeUpdate();
-//	}
-//	
-//	@Test
-//	public void testDeleteAccount() throws AccountAlreadyExistsException, AccountDoesNotExistException, SQLException {
-//		Account account = new Account("NewAccount", AccountType.CHECKING);
-//		accountService.createAccount(account);
-//		accountService.deleteAccount(account);
-//		
-//		Mockito.verify(preparedStatement, Mockito.times(0)).executeUpdate();
-//	}
-//	
-//	@Test
-//	public void testDeposit() throws SQLException {
-//		Account account = new Account(1, new BigDecimal(22.33), "Account", AccountType.SAVINGS);
-//		accountService.deposit(account.getId(), new BigDecimal(554.22));
-//		
-//		Mockito.verify(preparedStatement, Mockito.times(0)).setInt(1, account.getId());
-//		Mockito.verify(preparedStatement, Mockito.times(0)).setBigDecimal(2, new BigDecimal(554.22));
-//		Mockito.verify(preparedStatement, Mockito.times(0)).executeUpdate();
-//	}
-//	
-//	@Test
-//	public void testWithdraw() throws SQLException {
-//		Account account = new Account(1, new BigDecimal(2245.54), "Account", AccountType.SAVINGS);
-//		accountService.withdraw(account.getId(), new BigDecimal(54.22));
-//		
-//		Mockito.verify(preparedStatement, Mockito.times(0)).setInt(1, account.getId());
-//		Mockito.verify(preparedStatement, Mockito.times(0)).setBigDecimal(2, new BigDecimal(54.22));
-//		Mockito.verify(preparedStatement, Mockito.times(0)).executeUpdate();
-//	}
-	
-//	@Test(expected = AccountAlreadyExistsException.class)
-//	public void testAccountAlreadyExistsException() throws AccountAlreadyExistsException, SQLException {
-//		Account account = new Account("NewAccount", AccountType.CHECKING);
-//		accountService.createAccount(account);
-//		accountService.createAccount(account);
-//	}
-//	
-//	@Test(expected = AccountDoesNotExistException.class)
-//	public void testAccountDoesNotExistException() throws AccountDoesNotExistException, SQLException {
-//		Account account = new Account("NewAccountAgain", AccountType.SAVINGS);
-//		accountService.deleteAccount(account);
-//	}
+
+	@Test
+	public void testTransferFunds() throws AccountDoesNotExistException {
+		Account account1 = new Account("NewAccount", AccountType.SAVINGS);
+		int accountId1 = 10;
+
+		account1.setBalance(new BigDecimal(250));
+		assertEquals(account1.getBalance(), new BigDecimal(250));
+
+		Account account2 = new Account("DiffAccount", AccountType.SAVINGS);
+		int accountId2 = 20;
+		
+		account2.setBalance(new BigDecimal(1234.32));
+		assertEquals(account2.getBalance(), new BigDecimal(1234.32));
+		
+		Mockito.when(accountDao.transfer(new BigDecimal(200), accountId2, accountId1)).thenReturn(new BigDecimal(450));
+		Mockito.verify(accountDao).getAccountById(accountId1);
+
+		Mockito.when(accountDao.getAccountById(accountId2)).thenReturn(account2);
+		Mockito.verify(accountDao).getAccountById(accountId2);
+	}
 }

@@ -29,8 +29,6 @@ public class UserService {
 			username = Prompt.promptUsername();
 			if (InputValidation.isValidUsername(username)) {
 				break;
-			} else {
-
 			}
 		}
 
