@@ -125,7 +125,7 @@ public class UserDao {
 		}
 
 		// If username is in use, throw exception
-		throw new UserAlreadyExistsException("Username: " + user.getUsername() + " is already in use!");
+		throw new UserAlreadyExistsException("\nUsername: " + user.getUsername() + " is already in use!\n");
 	}
 
 	public int updateUser(User user, String newUsername, String newPassword) throws UserAlreadyExistsException {
@@ -146,7 +146,7 @@ public class UserDao {
 		}
 
 		// If username is in use, throw exception
-		throw new UserAlreadyExistsException("Username: " + user.getUsername() + " is already in use!");
+		throw new UserAlreadyExistsException("\nUsername: " + user.getUsername() + " is already in use!\n");
 	}
 
 	public int deleteUser(User user) throws UserDoesNotExistException {

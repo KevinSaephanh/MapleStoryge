@@ -91,6 +91,7 @@ public class AccountMainMenu implements View {
 			clip.close();
 			return this;
 		case 4:
+			accountService = new AccountService(currentUser);
 			accountService.joinAccount();
 			clip.close();
 			return this;
