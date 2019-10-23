@@ -1,6 +1,7 @@
 package services;
 
 import java.math.BigDecimal;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -90,17 +91,17 @@ public class AccountService {
 
 	public BigDecimal deposit(int id, BigDecimal amount) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
-			String sql = "UPDATE maplestoryges SET mesos = mesos + ? WHERE maplestoryge_id = ? RETURNING mesos";
-			PreparedStatement statement = connection.prepareStatement(sql);
-
-			statement.setBigDecimal(1, amount);
-			statement.setInt(2, id);
+			String sql = "{call deposit(?, ?)}";
+			CallableStatement statement = connection.prepareCall(sql);
+			
+			statement.setInt(1, id);
+			statement.setBigDecimal(2, amount);
 			statement.execute();
 
-			// Get result set from RETURNING clause
+			// Get new balance from result set
 			ResultSet rs = statement.getResultSet();
 			if (rs.next()) {
-				BigDecimal balance = rs.getBigDecimal("mesos");
+				BigDecimal balance = rs.getBigDecimal(1);
 				return balance;
 			}
 		} catch (SQLException e) {
@@ -112,17 +113,17 @@ public class AccountService {
 
 	public BigDecimal withdraw(int id, BigDecimal amount) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
-			String sql = "UPDATE maplestoryges SET mesos = mesos - ? WHERE maplestoryge_id = ? RETURNING mesos";
-			PreparedStatement statement = connection.prepareStatement(sql);
-
-			statement.setBigDecimal(1, amount);
-			statement.setInt(2, id);
+			String sql = "{call withdraw(?, ?)}";
+			CallableStatement statement = connection.prepareCall(sql);
+			
+			statement.setInt(1, id);
+			statement.setBigDecimal(2, amount);
 			statement.execute();
 
-			// Get result set from RETURNING clause
+			// Get new balance from result set
 			ResultSet rs = statement.getResultSet();
 			if (rs.next()) {
-				BigDecimal balance = rs.getBigDecimal("mesos");
+				BigDecimal balance = rs.getBigDecimal(1);
 				return balance;
 			}
 		} catch (SQLException e) {

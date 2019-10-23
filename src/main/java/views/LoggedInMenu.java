@@ -63,9 +63,11 @@ public class LoggedInMenu implements View {
 		switch (selection) {
 		case 1:
 			createAccount(AccountType.CHECKING);
+			clip.close();
 			return this;
 		case 2:
 			createAccount(AccountType.SAVINGS);
+			clip.close();
 			return this;
 		case 3:
 			try {
@@ -81,8 +83,10 @@ public class LoggedInMenu implements View {
 			return this;
 		case 4:
 			updateUser();
+			clip.close();
 			return this;
 		case 5:
+			clip.close();
 			return deleteUser();
 		case 0:
 			System.out.println("Logging out...\n");
@@ -97,6 +101,7 @@ public class LoggedInMenu implements View {
 				e.printStackTrace();
 			}
 		default:
+			clip.close();
 			return this;
 		}
 	}

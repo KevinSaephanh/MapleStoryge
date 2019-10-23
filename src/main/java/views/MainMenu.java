@@ -25,10 +25,9 @@ public class MainMenu implements View {
 	
 	public MainMenu() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 		File file = new File(AudioClips.LOGIN.toString());
-//		File file = new File(this.getClass().getResource(AudioClips.LOGIN.toString()).toString());
 		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file.getAbsoluteFile());
 		clip = AudioSystem.getClip();
-
+		
 		// Open clip in audioInputStream and loop
 		clip.open(audioInputStream);
 		clip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -49,9 +48,11 @@ public class MainMenu implements View {
 		switch (selection) {
 		case 0:
 			System.out.println("Exiting MapleStoryge");
+			clip.close();
 			return null;
 		case 1:
 			signup();
+			clip.close();
 			return this;
 		case 2:
 			User user = login();
@@ -66,6 +67,7 @@ public class MainMenu implements View {
 				e.printStackTrace();
 			}
 		default:
+			clip.close();
 			return this;
 		}
 	}

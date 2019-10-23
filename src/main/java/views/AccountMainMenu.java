@@ -24,14 +24,18 @@ public class AccountMainMenu implements View {
 	private User currentUser;
 	private AccountDao accountDao = new AccountDao();
 	private Clip clip;
-	
-	public AccountMainMenu(User currentUser) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+
+	public AccountMainMenu(User currentUser)
+			throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 		this.currentUser = currentUser;
-		
+
 		// Audio set up
 		File file = new File(AudioClips.RAINDROP_FLOWER.toString());
 		AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file.getAbsoluteFile());
 		clip = AudioSystem.getClip();
+
+		// If clip is open from a previous instance, close it
+		clip.close();
 
 		// Open clip in audioInputStream and loop
 		clip.open(audioInputStream);
@@ -68,6 +72,7 @@ public class AccountMainMenu implements View {
 			} catch (UserDoesNotExistException e) {
 				e.printStackTrace();
 			}
+			clip.close();
 			return this;
 		case 2:
 			try {
@@ -77,13 +82,16 @@ public class AccountMainMenu implements View {
 			} catch (EmptyTableException e) {
 				e.printStackTrace();
 			}
+			clip.close();
 			return this;
 		case 3:
 			Account account = searchByTitle();
 			System.out.println(account.toString());
+			clip.close();
 			return this;
 		case 4:
 			joinAccount();
+			clip.close();
 			return this;
 		case 0:
 			try {
@@ -97,6 +105,7 @@ public class AccountMainMenu implements View {
 				e.printStackTrace();
 			}
 		default:
+			clip.close();
 			return this;
 		}
 
@@ -141,11 +150,11 @@ public class AccountMainMenu implements View {
 	private void joinAccount() {
 		// Retrieve account by its title
 		Account account = searchByTitle();
-		
-		// Create the shared account in users_maplestoryges table 
+
+		// Create the shared account in users_maplestoryges table
 		AccountService accountService = new AccountService();
 		accountService.createSharedAccount(account.getId(), currentUser.getId());
-		
+
 		System.out.printf("You're now part of the %s party!\n\n", account.getTitle());
 	}
 }
