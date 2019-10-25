@@ -94,7 +94,7 @@ public class AccountDao {
 		// If result set is empty, throw exception
 		throw new AccountDoesNotExistException("Account with title: " + title + " does not exist");
 	}
-	
+
 	public Account getAccountById(int id) throws AccountDoesNotExistException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			String sql = "SELECT * FROM maplestoryges WHERE id = ?";
@@ -113,15 +113,15 @@ public class AccountDao {
 		// If result set is empty, throw exception
 		throw new AccountDoesNotExistException("Account with id: " + id + " does not exist");
 	}
-	
-	public int createAccount(Account acc) throws AccountAlreadyExistsException {
+
+	public int createAccount(AccountType at, String title) throws AccountAlreadyExistsException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
-			if (!AccountValidatorService.isTitleInUse(acc.getTitle())) {
+			if (!AccountValidatorService.isTitleInUse(title)) {
 				// Create the account record in the database under table maplestoryges
 				String sql = "INSERT INTO maplestoryges (storage_type, title) VALUES(?, ?) RETURNING maplestoryge_id";
 				PreparedStatement statement = connection.prepareStatement(sql);
-				statement.setString(1, acc.getAccountType().toString());
-				statement.setString(2, acc.getTitle());
+				statement.setString(1, at.toString());
+				statement.setString(2, title);
 				statement.execute();
 
 				ResultSet rs = statement.getResultSet();
@@ -130,12 +130,12 @@ public class AccountDao {
 					return accountId;
 				}
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 
-		// If title is in use, throw exception
-		throw new AccountAlreadyExistsException("Title: " + acc.getTitle() + " is already in use!");
+			// If title is in use, throw exception
+			throw new AccountAlreadyExistsException("Title: " + title + " is already in use!");
+		} catch (SQLException e) {
+			throw new AccountAlreadyExistsException("Title: " + title + " is already in use!");
+		}
 	}
 
 	public int updateAccount(Account acc, String title) throws AccountAlreadyExistsException {
@@ -157,23 +157,21 @@ public class AccountDao {
 		throw new AccountAlreadyExistsException("Title: " + acc.getTitle() + " is already in use!");
 	}
 
-	public int deleteAccount(Account acc) throws AccountDoesNotExistException {
+	public int deleteAccount(int id) throws AccountDoesNotExistException {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			String sql = "DELETE FROM maplestoryges WHERE maplestoryge_id = ?";
 			PreparedStatement statement = connection.prepareStatement(sql);
-			statement.setInt(1, acc.getId());
+			statement.setInt(1, id);
 			int deleteCount = statement.executeUpdate();
 
 			return deleteCount;
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new AccountDoesNotExistException("Storage with id: " + id + " does not exist");
 		}
-
-		// If account does not exist, throw exception
-		throw new AccountDoesNotExistException("Account with id: " + acc.getId() + " does not exist");
 	}
 
-	public int createSharedAccount(int accountId, int userId) {
+	public int createSharedAccount(int userId, int accountId) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			// Create the account record in the database under table maplestoryges
 			String sql = "INSERT INTO users_maplestoryges (user_id, maplestoryge_id) VALUES(?, ?)";
@@ -190,11 +188,40 @@ public class AccountDao {
 		return 0;
 	}
 
+	public int deleteSharedAccount(int id) throws AccountDoesNotExistException {
+		Connection connection = ConnectionUtil.getConnection();
+		try {
+			connection.setAutoCommit(false);
+			
+			String sql = "DELETE FROM users_maplestoryges WHERE maplestoryge_id = ?";
+			PreparedStatement statement = connection.prepareStatement(sql);
+			statement.setInt(1, id);
+			statement.executeUpdate();
+
+			connection.commit();
+			connection.close();
+			return 1;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("An error occurred, time to rollback!");
+
+			// Attempt to rollback to last committed state
+			try {
+				connection.rollback();
+				connection.close();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			
+			throw new AccountDoesNotExistException("Shared storage with id: " + id + " does not exist");
+		}
+	}
+
 	public BigDecimal deposit(int id, BigDecimal amount) {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			String sql = "{call deposit(?, ?)}";
 			CallableStatement statement = connection.prepareCall(sql);
-			
+
 			statement.setInt(1, id);
 			statement.setBigDecimal(2, amount);
 			statement.execute();
@@ -216,7 +243,7 @@ public class AccountDao {
 		try (Connection connection = ConnectionUtil.getConnection()) {
 			String sql = "{call withdraw(?, ?)}";
 			CallableStatement statement = connection.prepareCall(sql);
-			
+
 			statement.setInt(1, id);
 			statement.setBigDecimal(2, amount);
 			statement.execute();

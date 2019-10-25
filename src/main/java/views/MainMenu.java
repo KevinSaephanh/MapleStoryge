@@ -53,13 +53,9 @@ public class MainMenu implements View {
 			try {
 				clip.close();
 				return new LoggedInMenu(user);
-			} catch (UnsupportedAudioFileException e) {
+			} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
 				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (LineUnavailableException e) {
-				e.printStackTrace();
-			}
+			} 
 		default:
 			clip.close();
 			return this;

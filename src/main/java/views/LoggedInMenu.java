@@ -43,13 +43,6 @@ public class LoggedInMenu implements View {
 						+ "4) Update your personal info\n" + "5) Delete your user account\n" + "0) Log out");
 	}
 
-	public void printUpdateMenu() {
-		System.out.println("What info would you like to change?");
-		System.out.println("Choose from one of the options below:");
-		System.out.println("1) My username\n" + "2) My password\n" + "3) Both my username and password\n"
-				+ "0) I've changed my mind, take me back");
-	}
-
 	@Override
 	public View process() {
 		printMenu();
@@ -68,46 +61,37 @@ public class LoggedInMenu implements View {
 			try {
 				clip.close();
 				return new AccountMainMenu(currentUser);
-			} catch (UnsupportedAudioFileException e1) {
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			} catch (LineUnavailableException e1) {
-				e1.printStackTrace();
-			}
+			} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+				e.printStackTrace();
+			} 
 			return this;
 		case 4:
-			printUpdateMenu();
-			userService = new UserService(currentUser);
-			userService.updateUser();
+			String newUsername = userService.updateUser(currentUser.getId());
+			if (!newUsername.isEmpty()) {
+				currentUser.setUsername(newUsername);
+				return this;
+			}
+			
 			clip.close();
 			return this;
 		case 5:
-			clip.close();
-			userService = new UserService(currentUser);
-			userService.deleteUser();
+			userService.deleteUser(currentUser.getId());
 			try {
 				return new MainMenu();
-			} catch (UnsupportedAudioFileException e1) {
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			} catch (LineUnavailableException e1) {
-				e1.printStackTrace();
-			}
+			} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+				e.printStackTrace();
+			} 
+			
+			clip.close();
 			return this;
 		case 0:
 			System.out.println("Logging out...\n");
 			try {
 				clip.close();
 				return new MainMenu();
-			} catch (UnsupportedAudioFileException e) {
+			} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
 				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (LineUnavailableException e) {
-				e.printStackTrace();
-			}
+			} 
 		default:
 			clip.close();
 			return this;

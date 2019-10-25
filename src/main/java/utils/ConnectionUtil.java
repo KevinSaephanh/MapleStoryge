@@ -8,7 +8,6 @@ public class ConnectionUtil {
 	private static final String url = "jdbc:postgresql://localhost:5432/postgres";
 	private static final String user = System.getenv("MS_ROLE");
 	private static final String password = System.getenv("MS_PASS");
-	public static boolean testMode = false;
 	
 	public static Connection getConnection() {
 		try {

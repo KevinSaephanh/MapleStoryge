@@ -14,23 +14,13 @@ import views.Prompt;
 public class AccountService {
 	private AccountDao accountDao = new AccountDao();
 	private User currentUser;
-	private Account currentAccount;
-	
-	public AccountService() {
-		
-	}
-	
-	public AccountService(AccountDao accountDao) {
-		this.accountDao = accountDao;
-	}
 	
 	public AccountService(User currentUser) {
 		this.currentUser = currentUser;
 	}
 	
-	public AccountService(Account currentAccount, User currentUser) {
-		this.currentAccount = currentAccount;
-		this.currentUser = currentUser;
+	public AccountService(AccountDao accountDao) {
+		this.accountDao = accountDao;
 	}
 	
 	public void createAccount(AccountType at) {
@@ -40,9 +30,9 @@ public class AccountService {
 			if (InputValidation.isValidTitle(title)) {
 				try {
 					Account newAcc = new Account(title, at);
-					int accountId = accountDao.createAccount(newAcc);
+					int accountId = accountDao.createAccount(newAcc.getAccountType(), newAcc.getTitle());
 					
-					accountDao.createSharedAccount(accountId, currentUser.getId());
+					accountDao.createSharedAccount(currentUser.getId(), accountId);
 					System.out.println("\nNew maple storage has been created!\n");
 					return;
 				} catch (AccountAlreadyExistsException e) {
@@ -52,9 +42,8 @@ public class AccountService {
 		}
 	}
 	
-	public Account searchByTitle() {
+	public Account searchByTitle(String title) {
 		try {
-			String title = Prompt.promptTitle();
 			Account account = accountDao.getAccountByTitle(title);
 
 			// Check if account returned is null
@@ -68,52 +57,58 @@ public class AccountService {
 		return null;
 	}
 
-	public void joinAccount() {
+	public void joinAccount(int currentUserId) {
 		// Retrieve account by its title
-		Account account = searchByTitle();
+		String title = Prompt.promptTitle();
+		Account account = searchByTitle(title);
 
 		// Create the shared account in users_maplestoryges table
-		accountDao.createSharedAccount(account.getId(), currentUser.getId());
+		accountDao.createSharedAccount(currentUserId, account.getId());
 		System.out.printf("You're now part of the %s party!\n\n", account.getTitle());
 	}
 	
-	public Account deposit(int id) {	
+	public void deleteAccount(int accountId) {
+		try {
+			accountDao.deleteSharedAccount(accountId);
+			accountDao.deleteAccount(accountId);
+			System.out.println("Account successfully deleted!");
+		} catch (AccountDoesNotExistException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public BigDecimal deposit(int id) {	
 		while (true) {
 			BigDecimal amount = Prompt.promptDeposit();
 			
 			if (InputValidation.isAmountGreaterThanZero(amount)) {
 				BigDecimal newBalance = accountDao.deposit(id, amount);
-				currentAccount.setBalance(newBalance);
 				System.out.printf("You deposited %.2f mesos!\n", amount);
-				
-				return currentAccount;
+				return newBalance;
 			}
 		}
 	}
 
-	public Account withdraw(int id) {
+	public BigDecimal withdraw(int id, BigDecimal currentAccBalance) {
 		while (true) {
 			BigDecimal amount = Prompt.promptWithdraw();
 			
 			if (InputValidation.isAmountGreaterThanZero(amount)
-					&& InputValidation.isAmountWithinBalance(amount, currentAccount.getBalance())) {
+					&& InputValidation.isAmountWithinBalance(amount, currentAccBalance)) {
 				BigDecimal newBalance = accountDao.withdraw(id, amount);
-				currentAccount.setBalance(newBalance);
 				System.out.printf("You withdrew %.2f mesos!\n", amount);
-				
-				return currentAccount;
+				return newBalance;
 			}
 		}
 	}
 
-	public void transferFunds(int withdrawAccId, int depositAccId) {
+	public BigDecimal transferFunds(int withdrawAccId, int depositAccId, BigDecimal currentAccountBalance) {
 		while (true) {
 			BigDecimal amount = Prompt.promptTransfer();
 			if (InputValidation.isAmountGreaterThanZero(amount)
-					&& InputValidation.isAmountWithinBalance(amount, currentAccount.getBalance())) {
+					&& InputValidation.isAmountWithinBalance(amount, currentAccountBalance)) {
 				BigDecimal newBalance = accountDao.transfer(amount, withdrawAccId, depositAccId);
-				currentAccount.setBalance(newBalance);
-				return;
+				return newBalance;
 			}
 		}
 	}

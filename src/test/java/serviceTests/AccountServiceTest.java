@@ -49,7 +49,7 @@ public class AccountServiceTest {
 		int accountId = 20;
 		
 		Mockito.when(accountDao.getAccountById(accountId)).thenReturn(account);
-		accountService.withdraw(accountId);
+		accountService.withdraw(accountId, account.getBalance());
 		Mockito.verify(accountDao).getAccountById(accountId);
 		
 		assertEquals("2345 - 345 = 2000", new BigDecimal(2000), account.getBalance());
